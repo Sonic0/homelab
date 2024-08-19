@@ -1,0 +1,25 @@
+---
+- name: Update GRUB
+  ansible.builtin.command: update-grub
+  changed_when: true
+  notify: Reboot
+
+- name: Update initramfs
+  ansible.builtin.command: update-initramfs -u
+  changed_when: true
+  notify: Reboot
+
+- name: Restart pveproxy
+  become: true
+  ansible.builtin.service:
+    name: pveproxy
+    state: restarted
+
+- name: Restart ssh
+  become: true
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+- name: Reboot
+  ansible.builtin.reboot:

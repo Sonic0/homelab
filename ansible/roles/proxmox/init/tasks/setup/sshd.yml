@@ -1,0 +1,7 @@
+---
+- name: Disable SSH password login
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?PasswordAuthentication '
+    line: 'PasswordAuthentication no'
+  notify: Restart ssh

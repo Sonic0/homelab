@@ -1,0 +1,11 @@
+---
+- name: Setup Proxmox
+  ansible.builtin.import_tasks: setup/main.yml
+  tags: ["init", "proxmox", "setup"]
+
+- name: Tuning Proxmox
+  ansible.builtin.import_tasks: tuning/main.yml
+  tags: ["init", "proxmox", "tuning"]
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

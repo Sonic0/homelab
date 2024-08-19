@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
 # DESCRIPTION
-#    This script perform the creation/update/delete of Wordpress infrastructure for Siti-Scuole Project in AWS Env.
-#    Documentation at https://docs.google.com/document/.....
-#    See usage() function for more information.
+#    This script perform the setup of a Proxmox node.
+#    ...
 #================================================================
 #  DEBUG OPTION
 #    set -n  # Uncomment to check your syntax, without execution.
 #    set -x  # Uncomment to debug this shell script
 #    set -euo pipefail # Uncomment to "unofficial bash strict mode"
 #================================================================
+
+set -o nounset -o pipefail -o errexit
 
 #== global variables ==#
 # Shell Colors
@@ -23,15 +24,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SCRIPT_FULLPATH="${SCRIPT_DIR}/${SCRIPT_NAME}"
 DEFAULT_ENV_FILE_PATH="${SCRIPT_DIR}/.env.example"
 ENV_FILE_PATH="${SCRIPT_DIR}/.env"
-ANSIBLE_PLAYBOOKS_DIR="${SCRIPT_DIR}/proxmox_init"
+ANSIBLE_PLAYBOOKS_DIR="${SCRIPT_DIR}/ansible"
 ANSIBLE_INVENTORY_FILE="${ANSIBLE_PLAYBOOKS_DIR}/inventories/nmap.yml"
 
 
-# It updates the value of a parameter in an .env file.
-# If the parameter does not exist in the file, it will be added to the end of the file. \
-# inputs: ${1} the name of the parameter
-#         ${2} the new value for the parameter
-#         ${3} the path to the .env file
 modify_ansible_nmap_inventory() {
   local param_name=$1
   local new_value=$2
@@ -88,7 +84,39 @@ if [ ! -f "${ENV_FILE_PATH}" ]; then
   print_msg "ENV file created"
 fi
 
-modify_ansible_nmap_inventory "address" "192.168.1.0\/24" "${ANSIBLE_INVENTORY_FILE}"
+# shellcheck source=./.env
+set -o allexport
+. "${ENV_FILE_PATH}"
+set +o allexport
 
-ansible-playbook "./${ANSIBLE_PLAYBOOKS_DIR}/init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
-    -e "inventory_nmap_address=${ANSIBLE_INVENTORY_NMAP_ADDRESS},proxmox_init_user=${PROXMOX_INIT_USER},proxmox_init_user_pwd=${PROXMOX_INIT_USER_PWD}"
+ANSIBLE_INVENTORY_VARS=$(ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '{all_vars: .all.vars, ungrouped_hosts: .ungrouped.hosts}')
+HOSTNAME_PREFIX=$(jq -r '.all_vars.hostname_prefix' <<< "${ANSIBLE_INVENTORY_VARS}")
+DOMAIN=$(jq -r '.all_vars.domain' <<< "${ANSIBLE_INVENTORY_VARS}")
+
+SSH_KEY="${HOME}/.ssh/${HOSTNAME_PREFIX}.${DOMAIN}"  # Unique ssh key for every Proxmox node
+if [ ! -f "${SSH_KEY}" ]; then
+  print_warn "SSH key do not exist, creating..."
+  ssh-keygen -t ecdsa -C "Proxmox server - ${HOSTNAME_PREFIX}XX.${DOMAIN}" -f "${SSH_KEY}"
+  for host in $(echo "${ANSIBLE_INVENTORY_VARS}" | jq -r '.ungrouped_hosts[]'); do
+    echo "${host}"
+    ssh-copy-id -i "${SSH_KEY}" "${PROXMOX_INIT_USER}@${host}"
+  done
+fi
+
+modify_ansible_nmap_inventory "address" "${ANSIBLE_INVENTORY_NMAP_ADDRESS}" "${ANSIBLE_INVENTORY_FILE}"
+
+pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1; }
+
+# Step 1 - Init Proxmox
+ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
+  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+
+# Step 2 - User Token
+ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}" -e "terraform_user_password=${PROXMOX_TERRAFORM_USER_PASSWORD}"
+
+# Step 3 - VM template
+ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+
+popd || { echo "Failed to return to the previous directory"; exit 1; }

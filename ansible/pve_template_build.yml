@@ -1,0 +1,7 @@
+---
+- name: pve template - build
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - role: proxmox/template

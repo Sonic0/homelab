@@ -1,0 +1,6 @@
+---
+domain: mng.home.lan
+hostname_prefix: vmm
+
+locale: en_US.UTF-8
+timezone: Europe/Rome

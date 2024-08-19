@@ -1,0 +1,6 @@
+---
+- name: Install common system utilities
+  ansible.builtin.apt:
+    pkg: "{{ apt_common_packages }}"
+    state: present
+    update_cache: true

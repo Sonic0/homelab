@@ -1,0 +1,9 @@
+---
+- name: include util_resource_facts.yml
+  ansible.builtin.include_tasks: util_resource_facts.yml
+
+- name: destroy vmid {{ pve_template_vmid }}
+  ansible.builtin.command: >
+    pvesh delete /nodes/{{ pve_resource_exists[0]['node'] }}/{{ pve_resource_exists[0]['id'] }}
+  changed_when: true
+  when: pve_resource_exists

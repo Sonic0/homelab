@@ -1,0 +1,40 @@
+---
+
+pve_api_user_name: terraform-prov
+pve_api_user: "{{ pve_api_user_name }}@pve"
+pve_api_user_comment: hashicorp provider
+
+pve_api_permission_path: /
+
+pve_api_token_name: terraform
+pve_api_role_name: TerraformProv
+pve_api_role_privs: >
+  Datastore.AllocateSpace
+  Datastore.Audit
+  Pool.Allocate
+  Pool.Audit
+  Sys.Audit
+  Sys.Console
+  Sys.Modify
+  VM.Allocate
+  VM.Audit
+  VM.Clone
+  VM.Config.CDROM
+  VM.Config.CPU
+  VM.Config.Cloudinit
+  VM.Config.Disk
+  VM.Config.HWType
+  VM.Config.Memory
+  VM.Config.Network
+  VM.Config.Options
+  VM.Console
+  VM.Migrate
+  VM.Monitor
+  VM.PowerMgmt
+  SDN.Use
+
+pve_api_token_dest_file: ../.env
+pve_api_token_id_env: TF_VAR_proxmox_username
+pve_api_token_value_env: TF_VAR_proxmox_token
+pve_api_token_id: "{{ lookup('env', pve_api_token_id_env) }}"
+pve_api_token_value: "{{ lookup('env', pve_api_token_value_env) }}"

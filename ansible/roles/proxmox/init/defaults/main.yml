@@ -1,0 +1,24 @@
+---
+update_packages: true
+apt_common_packages:
+  - curl
+  - htop
+  - iotop
+  - iperf3
+  - iptraf-ng
+  - unzip
+  - vim
+  - wget
+  - whois
+  - zip
+
+switch_to_community_updates_repo: true
+disable_no_subscription_prompt: true
+disable_ssh_password_login: true
+enable_acme: false
+
+apply_tuning:
+  swappines: true
+
+pcie_passthrough:
+  enable: false

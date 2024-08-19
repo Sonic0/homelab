@@ -1,0 +1,37 @@
+---
+- name: Enrich bash shell with colors and aliases
+  ansible.builtin.import_tasks: shell_bash.yml
+  tags: ["init", "proxmox", "setup", "shell"]
+
+- name: Update SSH config
+  ansible.builtin.import_tasks: sshd.yml
+  when: disable_ssh_password_login
+  tags: ["init", "proxmox", "setup", "shell", "ssh"]
+
+- name: Switch to community APT repo
+  ansible.builtin.import_tasks: switch_to_community_updates_repo.yml
+  when: switch_to_community_updates_repo
+  tags: ["init", "proxmox", "setup", "repo"]
+
+- name: Update Proxmox
+  ansible.builtin.import_tasks: update.yml
+  tags: ["init", "proxmox", "setup", "update"]
+
+- name: Install common system utilities
+  ansible.builtin.import_tasks: install_common_utilities.yml
+  tags: ["init", "proxmox", "setup", "utilities"]
+
+- name: Disable Proxmox Subscription prompt
+  ansible.builtin.import_tasks: disable_subscription_prompt.yml
+  when: disable_no_subscription_prompt
+  tags: ["init", "proxmox", "setup", "subscription"]
+
+- name: Enable ACME certificate management
+  ansible.builtin.import_tasks: enable_acme.yml
+  when: enable_acme
+  tags: ["init", "proxmox", "setup", "certificate"]
+
+- name: Setup GPU passthrough
+  ansible.builtin.import_tasks: pcie_passthrough.yml
+  when: pcie_passthrough.enable
+  tags: ["init", "proxmox", "setup", "passthrough"]

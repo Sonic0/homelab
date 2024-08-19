@@ -1,0 +1,52 @@
+---
+- name: Create Terraform user {{ pve_api_user }}
+  when: terraform_user is defined and pve_api_user is defined and terraform_user_password is defined
+  ansible.builtin.command: >
+    pveum user add {{ pve_api_user }} --password "{{ terraform_user_password }}"
+      -comment "{{ pve_api_user_comment }}"
+  register: user_add
+  failed_when: user_add.rc != 0 and (user_add.rc != 2 and "already exists" not in user_add.stderr)
+  changed_when: '"already exists" not in user_add.stderr'
+
+- name: Create Terraform role {{ pve_api_role_name }}
+  when: user_add.changed
+  ansible.builtin.shell: pveum role add {{ pve_api_role_name }} -privs {{ pve_api_role_privs }}
+  register: role_add
+  failed_when: user_add.rc != 0 and (user_add.rc != 2 and "already exists" not in user_add.stderr)
+  changed_when: '"already exists" not in user_add.stderr'
+
+- name: Assign Terraform role to the user
+  when: user_add.changed and role_add.changed
+  ansible.builtin.shell: pveum aclmod {{ pve_api_permission_path }} -user {{ pve_api_user }} -role {{ pve_api_role_name }}
+  register: aclmod
+  failed_when: aclmod.rc != 0
+  changed_when: aclmod.rc == 0
+
+- name: Create user Token
+  when: terraform_user is defined and pve_api_user is defined
+  ansible.builtin.command: >
+    pveum user token add {{ pve_api_user }} {{ pve_api_token_name }} -expire 0 -privsep 0
+      -comment "Terraform token" --output-format json
+  register: token_add
+  failed_when: user_add.rc != 0 and (user_add.rc != 2 and "already exists" not in user_add.stderr)
+  changed_when: '"Token already exists" not in token_add.stderr'
+
+- name: Save user Token
+  when: token_add.changed
+  block:
+    - name: Set Token fact
+      ansible.builtin.set_fact:
+        pve_api_token_id: >-
+          {{ token_add.stdout | from_json | json_query('"full-tokenid"') }}
+        pve_api_token_value: >-
+          {{ token_add.stdout | from_json | json_query('value') }}
+
+    - name: Save to ansible host file in {{ pve_api_token_dest_file }}
+      ansible.builtin.lineinfile:
+        dest: "{{ pve_api_token_dest_file }}"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: "^TF_VAR_proxmox_username", line: "TF_VAR_proxmox_username={{ pve_api_token_id }}" }
+        - { regexp: "^TF_VAR_proxmox_token", line: "TF_VAR_proxmox_token={{ pve_api_token_value }}" }
+      delegate_to: localhost

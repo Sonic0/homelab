@@ -1,6 +1,7 @@
+---
 plugin: community.general.nmap
-address: "<<inventory_nmap_address>>"
-port: 22, 3128
+address: 192.168.1.0/24
+port: 3128
 open: true
 strict: false
 use_extra_vars: true

@@ -1,0 +1,5 @@
+---
+- name: Enrich bash shell with colors and aliases
+  ansible.builtin.import_tasks: swap.yml
+  when: apply_tuning.swappines
+  tags: ["init", "proxmox", "setup", "swap"]

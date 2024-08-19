@@ -1,0 +1,12 @@
+---
+- name: Update all packages
+  ansible.builtin.apt:
+    pkg: "*"
+    state: latest
+    update_cache: true
+  when: update_packages
+  notify: Reboot
+
+- name: Update LXC images available
+  ansible.builtin.shell: pveam update
+  when: update_packages

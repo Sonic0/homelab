@@ -1,9 +1,8 @@
 ---
 - hosts: all
 
-  gather_facts: false
+  gather_facts: true
   any_errors_fatal: true
-  become: true
 
   pre_tasks:
     - name: set initialize 'In Progress'
@@ -14,17 +13,11 @@
             status: "In Progress"
             start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
 
-    - name: gather facts
-      setup:
-      when:
-        - not delegate_facts_host | bool
+  roles:
+    - role: proxmox/init
       tags:
         - always
-  tasks:
-    - import_role:
-        name: initialize-base
-      tags:
-        - always
+
   post_tasks:
     - name: set initialize 'Complete'
       run_once: true
