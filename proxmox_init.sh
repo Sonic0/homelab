@@ -26,6 +26,7 @@ DEFAULT_ENV_FILE_PATH="${SCRIPT_DIR}/.env.example"
 ENV_FILE_PATH="${SCRIPT_DIR}/.env"
 ANSIBLE_PLAYBOOKS_DIR="${SCRIPT_DIR}/ansible"
 ANSIBLE_INVENTORY_FILE="${ANSIBLE_PLAYBOOKS_DIR}/inventories/nmap.yml"
+TERRAFORM_DIR="${SCRIPT_DIR}/terraform"
 
 
 modify_ansible_nmap_inventory() {
@@ -50,6 +51,24 @@ spinner_loading() {
         printf "\b${sp:i++%${#sp}:1}"
         sleep 1
     done
+}
+
+# It updates the value of a parameter in an .env file.
+# If the parameter does not exist in the file, it will be added to the end of the file. \
+# inputs: ${1} the name of the parameter
+#         ${2} the new value for the parameter
+#         ${3} the path to the .env file
+update_env_parameter() {
+  local param_name=$1
+  local new_value=$2
+  local env_file=$3
+
+  if grep -q "^${param_name}=" "${env_file}"; then
+    sed -i "s/^${param_name}=.*/${param_name}=${new_value}/" "${env_file}"
+  else
+    # If the parameter does not exist, add it to the file
+    echo "${param_name}=${new_value}" >> "${env_file}"
+  fi
 }
 
 # Check if the command exists as some sort of executable.
@@ -118,5 +137,17 @@ ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
 # Step 3 - VM template
 ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
   --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+
+popd || { echo "Failed to return to the previous directory"; exit 1; }
+
+sleep 10
+
+export PROXMOX_NODE=$(ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '.ungrouped.hosts[0]')
+update_env_parameter "PROXMOX_NODE" "${PROXMOX_NODE}" "${ENV_FILE_PATH}" && . "${ENV_FILE_PATH}"
+export TF_VAR_ssh_pub_keys="$(cat ~/.ssh/k8s.mng.home.lan.pub)"
+pushd "${TERRAFORM_DIR}" || { echo "Failed to change directory"; exit 1; }
+
+terraform apply
+terraform refresh
 
 popd || { echo "Failed to return to the previous directory"; exit 1; }
