@@ -1,0 +1,4 @@
+---
+- name: install and init Ceph
+  ansible.builtin.include_tasks: install_init.yml
+  when: configure_ceph

@@ -18,6 +18,8 @@
       tags:
         - always
 
+    - role: proxmox/ceph # the role is just an example
+
   post_tasks:
     - name: set initialize 'Complete'
       run_once: true

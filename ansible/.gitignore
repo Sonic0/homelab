@@ -1,0 +1,5 @@
+.cache
+*.retry
+plugins/
+roles_galaxy/
+inventories/k8s_k3s

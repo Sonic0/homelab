@@ -1,0 +1,41 @@
+---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Install Ceph using repo '{{ ceph_repository }}'' and version '{{ ceph_version }}'
+  ansible.builtin.command: pveceph install --repository "{{ ceph_repository }}" --version "{{ ceph_version }}"
+  when: "'ceph_base' not in ansible_facts.packages"
+  register: install_ceph
+  changed_when: 
+    - '"installed ceph reef successfully!" in install_ceph.stdout'
+    - '"ceph is already the newest version" not in install_ceph.stdout'
+
+- name: Get the network address of the primary IP
+  ansible.builtin.set_fact:
+    net_ip_mask: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
+
+- name: Get the network address of the node IP
+  debug:
+    msg: "Network address of the node IP: {{ net_ip_mask | ansible.utils.ipaddr('net')}}"
+
+- name: Init Ceph and Ceph Monitor
+  ansible.builtin.command: pveceph init --network "{{ net_ip_mask | ansible.utils.ipaddr('net')}}" --min_size "{{ ceph_nodes }}"
+  register: init_ceph
+  changed_when: '"installed ceph reef successfully!" in init_ceph.stdout'
+
+- name: Create Ceph Manager
+  ansible.builtin.command: pveceph mgr create
+  register: create_ceph_monitor
+  failed_when: create_ceph_monitor.rc != 0 and (create_ceph_monitor.rc != 2 and "already exists" not in create_ceph_monitor.stderr)
+  changed_when: '"already exists" in create_ceph_monitor.stderr'
+
+- name: Create OSD with for the device '{{ osd_device }}'
+  ansible.builtin.command: pveceph osd create "{{ osd_device }}"
+  register: create_ceph_osd
+  failed_when: create_ceph_osd.rc != 0 and (create_ceph_osd.rc != 2 and "is already in use" not in create_ceph_osd.stderr)
+  changed_when: '"is already in use" in create_ceph_osd.stderr'
+
+- name: Create a Ceph pool called 'nvme_pool'
+  ansible.builtin.command: pveceph pool create {{ ceph_pool_name }} --add_storages
+  register: create_ceph_pool

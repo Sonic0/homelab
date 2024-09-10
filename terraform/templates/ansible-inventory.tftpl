@@ -14,3 +14,19 @@ k8s_workers_${cluster_name}
 
 [k8s_${cluster_name}:vars]
 ansible_user=${ansible_user}
+
+####### K3S groups ####
+[server]
+%{ for node_hostname, node_host in k8s_controlplane ~}
+${node_hostname} ansible_host=${node_host}
+%{endfor}
+[agent]
+%{ for node_hostname, node_host in k8s_workers ~}
+${node_hostname} ansible_host=${node_host}
+%{endfor}
+[${cluster_name}_cluster:children]
+k8s_controlplane_${cluster_name}
+k8s_workers_${cluster_name}
+
+[${cluster_name}_cluster:vars]
+ansible_user=${ansible_user}

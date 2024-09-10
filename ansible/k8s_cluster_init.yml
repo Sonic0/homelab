@@ -1,0 +1,20 @@
+---
+- name: k8s cluster init
+  hosts: all
+  gather_facts: true
+
+  vars:
+    default_private_key_file: "{{ lookup('env', 'HOME') }}/.ssh/k8s.mng.home.lan"
+    server_private_key_file: "{{ ansible_ssh_private_key_file | default(default_private_key_file) }"
+  
+  roles:
+    # - { role: k8s/cluster_init }
+    - { role: k8s/timezone, become: true }
+
+# - name: k8s apps
+#   hosts: localhost
+#   gather_facts: false
+
+#   roles:
+#     - { role: k8s_apps/argocd }
+#     - { role: k8s_apps/vault_secrets }

@@ -1,0 +1,9 @@
+---
+configure_ceph: false
+ceph_repository: no-subscription
+ceph_version: reef
+ceph_nodes: 1
+
+osd_device: /dev/nvme0n1
+ceph_pool_name: proxmox-pool
+

@@ -36,7 +36,7 @@ locals {
       ip_data          = "10.10.20.211"
       cores            = 2
       memory           = 12288
-      disk             = "150G"
+      disk             = "80G"
     },
     k8s-worker-02 = {
       target_node      = "vmm01"
@@ -46,7 +46,7 @@ locals {
       ip_data          = "10.10.20.212"
       cores            = 2
       memory           = 12288
-      disk             = "150G"
+      disk             = "80G"
     }
   }
 }

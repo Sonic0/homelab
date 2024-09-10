@@ -1,13 +1,13 @@
-resource "proxmox_vm_qemu" "k8s_controlplane" {
-  for_each = local.k8s_controlplane
+resource "proxmox_vm_qemu" "k8s_worker" {
+  for_each = local.k8s_worker
 
   name        = each.key
   target_node = each.value.target_node
-  desc        = "Kubernetes control plane"
+  desc        = "Kubernetes worker"
   clone       = local.k8s_common.clone_base
   vmid        = each.value.vmid
 
-  cpu     = "kvm64"
+  cpu     = "host"
   sockets = 1
   cores   = each.value.cores
   memory  = each.value.memory
@@ -21,11 +21,14 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
 
   ssh_forward_ip = each.value.ip
   ipconfig0      = "ip=${each.value.ip}/24,gw=${local.k8s_common.gw}"
+  # ipconfig1      = "ip=${each.value.ip_data}/24"
   skip_ipv6      = true
   sshkeys        = var.ssh_pub_keys
 
   ciupgrade = true
   ci_wait   = 180
+  
+  tags = "k8s,worker,${local.vm_user},${local.cluster_name}"
 
   disks {
     ide {
@@ -48,13 +51,22 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
     }
   }
 
-  tags = "k8s,controlplane,${local.vm_user},${local.cluster_name}"
-
   network {
     model  = "virtio"
     bridge = "vmbr0"
-    # tag    = 13
   }
+
+  # network {
+  #   model  = "virtio"
+  #   bridge = "vmbr1"
+  #   tag    = 13
+  # }
+
+  # network {
+  #   model  = "virtio"
+  #   bridge = "vmbr1"
+  #   tag    = 20
+  # }
 
   vga {
     memory = 0
@@ -73,17 +85,6 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
       ciuser,
       disks[0].scsi[0].scsi0[0].disk[0].storage,
     ]
-  }
-
-  provisioner "remote-exec" {
-    inline = ["while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 1; done"]
-
-    connection {
-      host        = self.default_ipv4_address
-      user        = local.vm_user
-      timeout     = "180s"
-      private_key = file("~/.ssh/k8s.mng.home.lan")
-    }
   }
 
 }

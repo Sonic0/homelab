@@ -22,7 +22,7 @@
 
 - name: Add ceph-no-subscription repository
   ansible.builtin.apt_repository:
-    repo: deb http://download.proxmox.com/debian/ceph-quincy {{ ansible_facts.distribution_release }} no-subscription
-    filename: ceph-no-subscription
+    repo: deb http://download.proxmox.com/debian/ceph-reef {{ ansible_facts.distribution_release }} no-subscription
+    filename: ceph
     state: present
     update_cache: true
