@@ -11,7 +11,7 @@
 
 - name: Customize Bash RC
   when: bash_rc.changed
-  copy:
+  ansible.builtin.copy:
     dest: /root/.bashrc
     content: |
         export HISTTIMEFORMAT="%d/%m/%y %T "
@@ -26,7 +26,7 @@
 
 - name: Create Bash Profile
   when: bash_rc.changed
-  copy:
+  ansible.builtin.copy:
     dest: /root/.bash_profile
     content: |
       source /root/.bashrc

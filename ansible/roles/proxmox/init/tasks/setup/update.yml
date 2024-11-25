@@ -8,5 +8,5 @@
   notify: Reboot
 
 - name: Update LXC images available
-  ansible.builtin.shell: pveam update
+  ansible.builtin.command: pveam update
   when: update_packages

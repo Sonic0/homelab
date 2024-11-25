@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Initialize Proxmox
+  hosts: all
 
   gather_facts: true
   any_errors_fatal: true
@@ -7,7 +8,7 @@
   pre_tasks:
     - name: set initialize 'In Progress'
       run_once: true
-      set_stats:
+      ansible.builtin.set_stats:
         data:
           installer_phase_initialize:
             status: "In Progress"
@@ -15,15 +16,15 @@
 
   roles:
     - role: proxmox/init
-      tags:
-        - always
+      tags: always
 
-    - role: proxmox/ceph # the role is just an example
+    - role: proxmox/ceph
+      tags: always
 
   post_tasks:
     - name: set initialize 'Complete'
       run_once: true
-      set_stats:
+      ansible.builtin.set_stats:
         data:
           installer_phase_initialize:
             status: "Complete"

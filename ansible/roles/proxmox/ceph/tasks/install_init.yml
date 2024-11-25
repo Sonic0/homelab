@@ -3,11 +3,11 @@
   ansible.builtin.package_facts:
     manager: auto
 
-- name: Install Ceph using repo '{{ ceph_repository }}'' and version '{{ ceph_version }}'
+- name: Install Ceph using repo '{{ ceph_repository }}' and version '{{ ceph_version }}'
   ansible.builtin.command: pveceph install --repository "{{ ceph_repository }}" --version "{{ ceph_version }}"
   when: "'ceph_base' not in ansible_facts.packages"
   register: install_ceph
-  changed_when: 
+  changed_when:
     - '"installed ceph reef successfully!" in install_ceph.stdout'
     - '"ceph is already the newest version" not in install_ceph.stdout'
 
@@ -16,7 +16,7 @@
     net_ip_mask: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
 
 - name: Get the network address of the node IP
-  debug:
+  ansible.builtin.debug:
     msg: "Network address of the node IP: {{ net_ip_mask | ansible.utils.ipaddr('net')}}"
 
 - name: Init Ceph and Ceph Monitor

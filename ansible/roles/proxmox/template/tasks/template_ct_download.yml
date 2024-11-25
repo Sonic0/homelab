@@ -1,0 +1,17 @@
+---
+- name: Update the list of available container templates
+  ansible.builtin.command: pveam update
+  changed_when: false
+
+- name: Download CT templates
+  loop: ct_templates
+  block:
+    - name: Get template complete name
+      ansible.builtin.command: pveam available --section system | aws '{print $2}' | grep -E '^{{ item }}'
+      register: ct_template_available
+      changed_when: false
+
+    - name: Download template
+      ansible.builtin.command: pveam download local {{ ct_template_available.stdout }}
+      register: ct_template_downloaded
+      changed_when: not "OK, got correct file already, no need to download" in lxc_download_results.stdout

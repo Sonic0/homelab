@@ -1,0 +1,7 @@
+---
+# roles:
+#   - name: proxmox
+
+collections:
+  - name: ansible.posix
+  - name: community.general

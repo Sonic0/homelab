@@ -1,6 +1,6 @@
 ---
 - name: Disable SSH password login
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: '^(#\s*)?PasswordAuthentication '
     line: 'PasswordAuthentication no'

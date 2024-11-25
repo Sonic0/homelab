@@ -6,10 +6,11 @@
   vars:
     default_private_key_file: "{{ lookup('env', 'HOME') }}/.ssh/k8s.mng.home.lan"
     server_private_key_file: "{{ ansible_ssh_private_key_file | default(default_private_key_file) }"
-  
+
   roles:
     # - { role: k8s/cluster_init }
-    - { role: k8s/timezone, become: true }
+    - role: k8s/timezone
+      become: true
 
 # - name: k8s apps
 #   hosts: localhost

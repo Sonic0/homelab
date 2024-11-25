@@ -5,6 +5,8 @@ exclude_paths:
 skip_list:
   - meta-no-info
   - name[casing]
+  - name[template]
   - role-name[path]
   - var-naming[no-role-prefix]
   - yaml[line-length]
+  - package-latest

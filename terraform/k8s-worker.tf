@@ -22,12 +22,12 @@ resource "proxmox_vm_qemu" "k8s_worker" {
   ssh_forward_ip = each.value.ip
   ipconfig0      = "ip=${each.value.ip}/24,gw=${local.k8s_common.gw}"
   # ipconfig1      = "ip=${each.value.ip_data}/24"
-  skip_ipv6      = true
-  sshkeys        = var.ssh_pub_keys
+  skip_ipv6 = true
+  sshkeys   = var.ssh_pub_keys
 
   ciupgrade = true
   ci_wait   = 180
-  
+
   tags = "k8s,worker,${local.vm_user},${local.cluster_name}"
 
   disks {

@@ -10,6 +10,6 @@
   notify: restart pveproxy
 
 - name: Print subscription prompt backup file
-  debug:
+  ansible.builtin.debug:
     msg: "{{ replace_proxmoxlib_js.backup_file }}"
   when: replace_proxmoxlib_js.changed and not replace_proxmoxlib_js.failed

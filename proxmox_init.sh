@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # DESCRIPTION
-#    This script perform the setup of a Proxmox node.
-#    ...
+#    This script perform the setup of a Proxmox node using Ansible and Terraform.
 #================================================================
 #  DEBUG OPTION
 #    set -n  # Uncomment to check your syntax, without execution.
@@ -94,7 +93,7 @@ print_error() {
 ########
 
 if ! command_exists "nmap"; then
-  print_error "Nmap doesn't seem to be installed. Please head on over to your OS package manager install it"
+  print_error "Nmap doesn't seem to be installed. Please head on over to your OS package manager to install it"
   exit 1
 fi
 
@@ -128,7 +127,7 @@ pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1;
 
 # Step 1 - Init Proxmox
 ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
-  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+  --user "${PROXMOX_INIT_USER}" --key-file "${SSH_KEY}"
 
 # Step 2 - User Token
 ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \

@@ -41,7 +41,7 @@
           --net0 virtio,bridge={{ pve_template_net_br }}
           --ipconfig0 ip=dhcp
       changed_when: true
-# --net0 virtio,bridge={{ pve_template_net_br }},tag={{ pve_template_net_vlan }}
+      # ^ VLAN TAG --> --net0 virtio,bridge={{ pve_template_net_br }},tag={{ pve_template_net_vlan }}
     - name: vm - import image
       ansible.builtin.command: >
         qm importdisk

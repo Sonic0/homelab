@@ -15,3 +15,6 @@ pve_template_net_br: vmbr0
 # pve_template_net_vlan: 13
 
 pve_template_destroy: false
+
+ct_templates:
+  - ubuntu-24.04
