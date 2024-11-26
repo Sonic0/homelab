@@ -1,0 +1,35 @@
+dnsmasq:
+  customDnsEntries:
+    - address=/ap/192.168.20.20
+ 
+  customCnameEntries:
+    - cname=sonicwallace.ap,ap
+
+persistentVolumeClaim:
+  enabled: true
+
+ingress:
+  enabled: true
+  hosts:
+  - pihole.home.lan
+
+serviceWeb:
+  loadBalancerIP: 192.168.1.81
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: ClusterIP
+
+serviceDns:
+  loadBalancerIP: 192.168.1.81
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
+
+# enables cloudflare tunnel sidecar container
+# and sets upstream dns in pihole to leverage it
+doh:
+  enabled: true
+  pullPolicy: Always
+  envVars: {
+    DOH_UPSTREAM: "https://1.1.1.1/dns-query"
+  }
