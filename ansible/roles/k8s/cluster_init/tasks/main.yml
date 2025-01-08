@@ -1,10 +1,55 @@
 ---
-- name: Storage tasks
-  ansible.builtin.include_tasks: storage.yml
-  when: k8s_cluster_workers_group in group_names
+- name: k3S | Create temporary directory for saving k3s-ansible repo
+  ansible.builtin.tempfile:
+    state: directory
+  register: temp_dir
 
-# - name: Kubernetes tasks
-#   ansible.builtin.include_tasks: k8s.yml
-#   when: >
-#     k8s_cluster_workers_group in group_names or
-#     k8s_cluster_controlplane_group in group_names
+- name: k3S | Download {{ k8s_init_repo_url }} repo into temporary directory
+  ansible.builtin.git:
+    repo: "{{ k8s_init_repo_url }}"
+    dest: "{{ temp_dir.path }}"
+    version: "{{ k8s_init_repo_version}}"
+    depth: 1
+
+- name: K3S | Create group_vars directory
+  ansible.builtin.file:
+    path: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/group_vars"
+    state: directory
+    mode: "0755"
+
+- name: K3S | Create init script Ansible group vars from template
+  ansible.builtin.template:
+    src: k3s_group_vars.yml.j2
+    dest: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/group_vars/all.yml"
+
+- name: k3S | Verify the existence of the inventory file
+  ansible.builtin.stat:
+    path: "{{ k8s_init_inventory_path }}"
+  register: inventory_file
+
+- name: k3S | Fail if the inventory file does not exist
+  ansible.builtin.fail:
+    msg: "The inventory file {{ k8s_init_inventory_path }} does not exist."
+  when: not inventory_file.stat.exists
+
+- name: k3S | Copy inventory file created previously by Terraform to temporary directory
+  ansible.builtin.copy:
+    src: "{{ k8s_init_inventory_path }}"
+    dest: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/{{ k8s_cluster_name }}_hosts"
+
+- name: K3S | Run k3s-ansible playbook
+  ansible.builtin.command: ansible-playbook site.yml -i "inventory/{{ k8s_cluster_name }}/{{ k8s_cluster_name }}_hosts"
+  args:
+    chdir: "{{ temp_dir.path }}"
+  register: playbook_result
+  failed_when: playbook_result.rc != 0
+
+- name: K3S | Fail if the k3s-ansible playbook run failed
+  ansible.builtin.fail:
+    msg: "The k3s-ansible playbook run failed."
+  when: playbook_result.rc != 0
+
+- name: K3S | Remove temporary directory {{ temp_dir.path }}
+  ansible.builtin.file:
+    path: "{{ temp_dir.path }}"
+    state: absent

@@ -1,7 +1,8 @@
+---
 dnsmasq:
   customDnsEntries:
     - address=/ap/192.168.20.20
- 
+
   customCnameEntries:
     - cname=sonicwallace.ap,ap
 
@@ -11,7 +12,7 @@ persistentVolumeClaim:
 ingress:
   enabled: true
   hosts:
-  - pihole.home.lan
+    - pihole.home.lan
 
 serviceWeb:
   loadBalancerIP: 192.168.1.81

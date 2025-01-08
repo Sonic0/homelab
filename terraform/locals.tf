@@ -1,9 +1,11 @@
 locals {
-  cluster_name      = "k3s"
-  vm_user           = "ubuntu"
-  ansible_config    = "../ansible/ansible.cfg"
-  ansible_playbook  = "../ansible/k8s_cluster_init.yml"
-  ansible_inventory = "../ansible/inventories/k8s_${local.cluster_name}"
+  cluster_name          = "k3s"
+  vm_super_user         = "root"
+  vm_user               = "ubuntu"
+  ansible_config        = "../ansible/ansible.cfg"
+  ansible_playbook      = "../ansible/k8s_cluster_init.yml"
+  ansible_inventory     = "../ansible/inventories/k8s_${local.cluster_name}"
+  ansible_k3s_inventory = "../ansible/inventories/${local.cluster_name}_hosts"
 
   k8s_common = {
     gw         = "192.168.1.1"

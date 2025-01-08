@@ -8,9 +8,15 @@
     server_private_key_file: "{{ ansible_ssh_private_key_file | default(default_private_key_file) }"
 
   roles:
-    # - { role: k8s/cluster_init }
-    - role: k8s/timezone
+    - role: timezone
       become: true
+
+- name: K3S installation
+  hosts: localhost
+  gather_facts: false
+
+  roles:
+    - role: k8s/cluster_init
 
 # - name: k8s apps
 #   hosts: localhost
