@@ -1,11 +1,11 @@
 ---
-k8s_cluster_name: k3s
+k8s_cluster_name: HomeKube
 
 k8s_init_repo_url: https://github.com/techno-tim/k3s-ansible.git
 k8s_init_repo_version: master
-k8s_init_inventory_path: "ansible/inventories/{{ k8s_cluster_name }}_hosts"
+k8s_init_inventory_path: "../ansible/inventories/{{ k8s_cluster_name }}_hosts"
 
-k3s_version: v1.31.3+k3s1
+k3s_version: v1.32.2+k3s1
 
 k8s_cluster_controlplane_group: k8s_controlplane_{{ k8s_cluster_name }}
 k8s_cluster_workers_group: k8s_workers_{{ k8s_cluster_name }}
@@ -16,7 +16,7 @@ k8s_cluster_kubeconfig_remote: "{{ k8s_cluster_user_home }}/config"
 k8s_cluster_kubeconfig_localhost: "{{ lookup('env', 'HOME') }}/.kube/config"
 
 k8s_cluster_kubeadm_config: /etc/kubernetes/kubeadm-config.yml
-k8s_cluster_control_plane_endpoint: 192.168.13.254
+# k8s_cluster_control_plane_endpoint: 192.168.13.254
 
 k8s_cluster_pod_network: 10.10.0.0/16
 # renovate: depName=projectcalico/calico

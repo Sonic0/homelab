@@ -3,7 +3,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "Telmate/proxmox"
-      version = "3.0.1-rc4"
+      version = "3.0.1-rc6"
     }
     local = {
       source  = "hashicorp/local"
@@ -17,5 +17,5 @@ provider "proxmox" {
   pm_api_url          = var.proxmox_url
   pm_api_token_id     = var.proxmox_username
   pm_api_token_secret = var.proxmox_token
-  pm_parallel         = 2
+  pm_parallel         = 1
 }

@@ -7,10 +7,10 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
   clone       = local.k8s_common.clone_base
   vmid        = each.value.vmid
 
-  cpu     = "kvm64"
-  sockets = 1
-  cores   = each.value.cores
-  memory  = each.value.memory
+  cpu_type = "kvm64"
+  sockets  = 1
+  cores    = each.value.cores
+  memory   = each.value.memory
   # numa    = true
 
   os_type = "cloud-init"
@@ -48,12 +48,13 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
     }
   }
 
-  tags = "k8s,controlplane,${local.vm_user},${local.cluster_name}"
+  tags = "k8s,controlplane,k3s,${local.vm_user},${local.cluster_name}"
 
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
-    # tag    = 13
+    tag    = 20
   }
 
   vga {

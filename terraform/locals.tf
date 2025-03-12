@@ -1,5 +1,5 @@
 locals {
-  cluster_name          = "k3s"
+  cluster_name          = "HomeKube"
   vm_super_user         = "root"
   vm_user               = "ubuntu"
   ansible_config        = "../ansible/ansible.cfg"
@@ -8,7 +8,7 @@ locals {
   ansible_k3s_inventory = "../ansible/inventories/${local.cluster_name}_hosts"
 
   k8s_common = {
-    gw         = "192.168.1.1"
+    gw         = "192.168.20.1"
     ci_disk    = "ide2"
     boot_disk  = "scsi0"
     storage    = "local-zfs"
@@ -22,7 +22,7 @@ locals {
       target_node = "vmm01"
       storage     = "local-zfs"
       vmid        = 8001
-      ip          = "192.168.1.201"
+      ip          = "192.168.20.40"
       cores       = 1
       memory      = 2048
       disk        = "20G"
@@ -34,26 +34,26 @@ locals {
       target_node = "vmm01"
       storage     = "local-zfs"
       vmid        = 8011
-      ip          = "192.168.1.211"
-      ip_data     = "10.10.20.211"
-      cores       = 2
-      memory      = 12288
-      disk        = "80G"
+      ip          = "192.168.20.43"
+      # ip_data     = "10.10.20.211"
+      cores  = 2
+      memory = 8192
+      disk   = "80G"
     },
     k8s-worker-02 = {
       target_node = "vmm01"
       storage     = "local-zfs"
       vmid        = 8012
-      ip          = "192.168.1.212"
-      ip_data     = "10.10.20.212"
-      cores       = 2
-      memory      = 12288
-      disk        = "80G"
+      ip          = "192.168.20.44"
+      # ip_data     = "10.10.20.212"
+      cores  = 2
+      memory = 8192
+      disk   = "80G"
     }
   }
 
   ct_common = {
-    gw        = "192.168.1.1"
+    gw        = "192.168.20.1"
     boot_disk = "scsi0"
     storage   = "local-zfs"
     templates = {

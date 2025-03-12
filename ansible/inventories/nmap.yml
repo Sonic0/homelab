@@ -1,6 +1,6 @@
 ---
 plugin: community.general.nmap
-address: 192.168.1.0/24
+#address: '192.168.1.0/24' # Using ANSIBLE_NMAP_ADDRESS env var
 port: 3128
 open: true
 strict: false

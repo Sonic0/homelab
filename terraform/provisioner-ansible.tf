@@ -53,8 +53,9 @@ resource "terraform_data" "ansible" {
     command     = "ansible-playbook ${local.ansible_playbook}"
     working_dir = "../ansible"
     environment = {
-      ANSIBLE_INVENTORY = local.ansible_inventory
-      ANSIBLE_CONFIG    = local.ansible_config
+      ANSIBLE_INVENTORY        = local.ansible_k3s_inventory
+      ANSIBLE_CONFIG           = local.ansible_config
+      ANSIBLE_PRIVATE_KEY_FILE = var.ssh_pub_keys
     }
   }
 }

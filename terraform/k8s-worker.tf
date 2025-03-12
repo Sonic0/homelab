@@ -7,10 +7,10 @@ resource "proxmox_vm_qemu" "k8s_worker" {
   clone       = local.k8s_common.clone_base
   vmid        = each.value.vmid
 
-  cpu     = "host"
-  sockets = 1
-  cores   = each.value.cores
-  memory  = each.value.memory
+  cpu_type = "host"
+  sockets  = 1
+  cores    = each.value.cores
+  memory   = each.value.memory
   # numa    = true
 
   os_type = "cloud-init"
@@ -28,7 +28,7 @@ resource "proxmox_vm_qemu" "k8s_worker" {
   ciupgrade = true
   ci_wait   = 180
 
-  tags = "k8s,worker,${local.vm_user},${local.cluster_name}"
+  tags = "k8s,worker,k3s,${local.vm_user},${local.cluster_name}"
 
   disks {
     ide {
@@ -52,21 +52,19 @@ resource "proxmox_vm_qemu" "k8s_worker" {
   }
 
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
+    tag    = 20
   }
 
-  # network {
-  #   model  = "virtio"
-  #   bridge = "vmbr1"
-  #   tag    = 13
-  # }
+  network {
+    id     = 1
+    model  = "virtio"
+    bridge = "vmbr0"
+    tag    = 50
+  }
 
-  # network {
-  #   model  = "virtio"
-  #   bridge = "vmbr1"
-  #   tag    = 20
-  # }
 
   vga {
     memory = 0

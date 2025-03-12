@@ -28,19 +28,6 @@ ANSIBLE_INVENTORY_FILE="${ANSIBLE_PLAYBOOKS_DIR}/inventories/nmap.yml"
 TERRAFORM_DIR="${SCRIPT_DIR}/terraform"
 
 
-modify_ansible_nmap_inventory() {
-  local param_name=$1
-  local new_value=$2
-  local inventory_file=$3
-
-  if grep -q "^${param_name}:" "${inventory_file}"; then
-    sed -i "s/^${param_name}:.*/${param_name}: ${new_value}/" "${inventory_file}"
-  else
-    # If the parameter does not exist, add it to the file
-    echo "${param_name}=${new_value}" >> "${inventory_file}"
-  fi
-}
-
 spinner_loading() {
     echo -ne "\r"
     i=1
@@ -107,9 +94,13 @@ set -o allexport
 . "${ENV_FILE_PATH}"
 set +o allexport
 
-ANSIBLE_INVENTORY_VARS=$(ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '{all_vars: .all.vars, ungrouped_hosts: .ungrouped.hosts}')
-HOSTNAME_PREFIX=$(jq -r '.all_vars.hostname_prefix' <<< "${ANSIBLE_INVENTORY_VARS}")
-DOMAIN=$(jq -r '.all_vars.domain' <<< "${ANSIBLE_INVENTORY_VARS}")
+export ANSIBLE_NMAP_ADDRESS="${NETWORK_CIDR}"
+ANSIBLE_INVENTORY_VARS=$(ANSIBLE_NMAP_ADDRESS="${NETWORK_CIDR}" ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '{all_vars: .all.vars, ungrouped_hosts: .ungrouped.hosts}')
+print_msg "Proxmox node: ${ANSIBLE_INVENTORY_VARS}"
+# HOSTNAME_PREFIX=$(jq -r '.all_vars.hostname_prefix' <<< "${ANSIBLE_INVENTORY_VARS}")
+HOSTNAME_PREFIX="vmm"
+DOMAIN="mng.home.lan"
+# DOMAIN=$(jq -r '.all_vars.domain' <<< "${ANSIBLE_INVENTORY_VARS}")
 
 SSH_KEY="${HOME}/.ssh/${HOSTNAME_PREFIX}.${DOMAIN}"  # Unique ssh key for every Proxmox node
 if [ ! -f "${SSH_KEY}" ]; then
@@ -121,27 +112,27 @@ if [ ! -f "${SSH_KEY}" ]; then
   done
 fi
 
-modify_ansible_nmap_inventory "address" "${ANSIBLE_INVENTORY_NMAP_ADDRESS}" "${ANSIBLE_INVENTORY_FILE}"
-
-pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1; }
+# pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1; }
 
 # Step 1 - Init Proxmox
-ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
-  --user "${PROXMOX_INIT_USER}" --key-file "${SSH_KEY}"
+#ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
+#  --user "${PROXMOX_INIT_USER}" --key-file "${SSH_KEY}"
 
 # Step 2 - User Token
-ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
-  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}" -e "terraform_user_password=${PROXMOX_TERRAFORM_USER_PASSWORD}"
+#ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+ # --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}" -e "terraform_user_password=${PROXMOX_TERRAFORM_USER_PASSWORD}"
 
 # Step 3 - VM template
-ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
-  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+# ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+#  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
 
-popd || { echo "Failed to return to the previous directory"; exit 1; }
+# popd || { echo "Failed to return to the previous directory"; exit 1; }
 
-sleep 10
+# sleep 10
 
-export PROXMOX_NODE=$(ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '.ungrouped.hosts[0]')
+export PROXMOX_NODE=$(ANSIBLE_NMAP_ADDRESS="${NETWORK_CIDR}" \
+  ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '.ungrouped.hosts[0]')
+print_msg "Proxmox node: ${PROXMOX_NODE}"
 update_env_parameter "PROXMOX_NODE" "${PROXMOX_NODE}" "${ENV_FILE_PATH}" && . "${ENV_FILE_PATH}"
 export TF_VAR_ssh_pub_keys="$(cat ~/.ssh/k8s.mng.home.lan.pub)"
 pushd "${TERRAFORM_DIR}" || { echo "Failed to change directory"; exit 1; }
