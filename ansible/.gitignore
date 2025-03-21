@@ -2,5 +2,6 @@
 *.retry
 plugins/
 roles_galaxy/
-inventories/HomeKube*
+inventories/k3s_*
 inventories/k8s_*
+group_vars/k3s_*

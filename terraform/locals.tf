@@ -1,11 +1,11 @@
 locals {
-  cluster_name          = "HomeKube"
+  cluster_name          = "homekube"
   vm_super_user         = "root"
   vm_user               = "ubuntu"
   ansible_config        = "../ansible/ansible.cfg"
   ansible_playbook      = "../ansible/k8s_cluster_init.yml"
   ansible_inventory     = "../ansible/inventories/k8s_${local.cluster_name}"
-  ansible_k3s_inventory = "../ansible/inventories/${local.cluster_name}_hosts"
+  ansible_k3s_inventory = "../ansible/inventories/k3s_${local.cluster_name}"
 
   k8s_common = {
     gw         = "192.168.20.1"
@@ -24,7 +24,7 @@ locals {
       vmid        = 8001
       ip          = "192.168.20.40"
       cores       = 1
-      memory      = 2048
+      memory      = 2560
       disk        = "20G"
     }
   }
@@ -38,7 +38,7 @@ locals {
       # ip_data     = "10.10.20.211"
       cores  = 2
       memory = 8192
-      disk   = "80G"
+      disk   = "100G"
     },
     k8s-worker-02 = {
       target_node = "vmm01"
@@ -48,7 +48,7 @@ locals {
       # ip_data     = "10.10.20.212"
       cores  = 2
       memory = 8192
-      disk   = "80G"
+      disk   = "100G"
     }
   }
 

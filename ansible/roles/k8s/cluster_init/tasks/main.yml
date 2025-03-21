@@ -1,48 +1,22 @@
 ---
-- name: k3S | Create temporary directory to save groups
-  ansible.builtin.tempfile:
-    state: directory
-  register: temp_dir
-
-# - name: k3S | Download {{ k8s_init_repo_url }} repo into temporary directory
-#   ansible.builtin.git:
-#     repo: "{{ k8s_init_repo_url }}"
-#     dest: "{{ temp_dir.path }}"
-#     version: "{{ k8s_init_repo_version}}"
-#     depth: 1
-
 - name: K3S | Install K3S Ansible Collection
   ansible.builtin.command: ansible-galaxy collection install git+https://github.com/k3s-io/k3s-ansible.git
   register: ansible_collection_result
   failed_when: ansible_collection_result.rc != 0
+  run_once: true
 
-- name: K3S | Create group_vars directory
-  ansible.builtin.file:
-    path: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/group_vars"
-    state: directory
-    mode: "0755"
+# - name: K3S | Execute the k3s_token.yml task
+#   ansible.builtin.import_tasks: k3s_token.yml
+#   tags: ["init", "k3s", "setup"]
 
-- name: K3S | Generate random password for the K3S token
-  ansible.builtin.command: pwgen -s 64 1
-  register: k3s_token
-
-- name: Print the generated token
-  ansible.builtin.debug:
-    msg: "{{ k3s_token.stdout }}"
-  tags: debug
-
-- name: K3S | set environment variable for the k3s_token
-  ansible.builtin.set_fact:
-    k3s_token: "{{ k3s_token.stdout }}"
-
-- name: K3S | Create init script Ansible group vars from template
+- name: K3S | Create Ansible group vars from template
   ansible.builtin.template:
     src: k3s_group_vars.yml.j2
-    dest: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/group_vars/all.yml"
+    dest: "{{ playbook_dir }}/group_vars/k3s_{{ k8s_cluster_name }}.yml"
 
 - name: Print the generated group_vars file
   ansible.builtin.debug:
-    msg: "{{ lookup('file', temp_dir.path + '/inventory/' + k8s_cluster_name + '/group_vars/all.yml') }}"
+    msg: "{{ lookup('file', playbook_dir + '/group_vars/k3s_' + k8s_cluster_name + '.yml') }}"
 
 - name: k3S | Verify the existence of the inventory file
   ansible.builtin.stat:
@@ -53,34 +27,3 @@
   ansible.builtin.fail:
     msg: "The inventory file {{ k8s_init_inventory_path }} does not exist."
   when: not inventory_file.stat.exists
-
-- name: k3S | Copy inventory file created previously by Terraform to temporary directory
-  ansible.builtin.copy:
-    src: "{{ k8s_init_inventory_path }}"
-    dest: "{{ temp_dir.path }}/inventory/{{ k8s_cluster_name }}/{{ k8s_cluster_name }}_hosts"
-
-- name: K3S | Install the K3S cluster using k3s-ansible playbook
-  ansible.builtin.command: ansible-playbook k3s.orchestration.site -i "inventory/{{ k8s_cluster_name }}/{{ k8s_cluster_name }}_hosts"
-  args:
-    chdir: "{{ temp_dir.path }}"
-  register: playbook_result
-  failed_when: playbook_result.rc != 0
-
-# TODO | Add a check to see if the K3S cluster is already installed
-# - name: K3S | Update the K3S cluster using k3s-ansible playbook
-#   ansible.builtin.command: ansible-playbook k3s.orchestration.upgrade -i "inventory/{{ k8s_cluster_name }}/{{ k8s_cluster_name }}_hosts"
-#   args:
-#     chdir: "{{ temp_dir.path }}"
-#   register: playbook_result
-#   failed_when: playbook_result.rc != 0
-#   when: k3s_cluster_installed.rc == 0
-
-- name: K3S | Fail if the k3s-ansible playbook run failed
-  ansible.builtin.fail:
-    msg: "The k3s-ansible playbook run failed."
-  when: playbook_result.rc != 0
-
-- name: K3S | Remove temporary directory {{ temp_dir.path }}
-  ansible.builtin.file:
-    path: "{{ temp_dir.path }}"
-    state: absent

@@ -1,0 +1,54 @@
+{{- range $index, $appset := .Values.appsets }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ $appset.name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  generators:
+    - git:
+        repoURL: {{ $.Values.repo }}
+        revision: {{ $.Values.revision }}
+        directories:
+          - path: "cluster/{{ $appset.name }}/*"
+  template:
+    metadata:
+      name: {{ `"{{path.basename}}"` }}
+      annotations:
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    spec:
+      project: default
+      source:
+        repoURL: {{ $.Values.repo }}
+        targetRevision: {{ $.Values.revision }}
+        path: {{ `"{{path}}"` }}
+      destination:
+        name: in-cluster
+        namespace: {{ default `"{{path.basename}}"` $appset.namespace }}
+      # https://github.com/argoproj/argo-cd/issues/11143
+      ignoreDifferences:
+        - group: apps
+          kind: StatefulSet
+          jqPathExpressions:
+            - .spec.volumeClaimTemplates[].apiVersion
+            - .spec.volumeClaimTemplates[].kind
+        - group: apps
+          kind: Deployment
+          jqPathExpressions:
+            - .spec.template.spec.containers[].env[].valueFrom.resourceFieldRef.divisor
+            - .spec.template.spec.initContainers[].env[].valueFrom.resourceFieldRef.divisor
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 10
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 10m
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+{{- end }}

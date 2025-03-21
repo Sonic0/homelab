@@ -1,11 +1,7 @@
 ---
-k8s_cluster_name: HomeKube
-
-k8s_init_repo_url: https://github.com/techno-tim/k3s-ansible.git
-k8s_init_repo_version: master
-k8s_init_inventory_path: "../ansible/inventories/{{ k8s_cluster_name }}_hosts"
-
-k3s_version: v1.32.2+k3s1
+k3s_version: v1.31.6+k3s1
+k3s_cluster_context_name: k3s-homelab
+k8s_init_inventory_path: "{{ playbook_dir }}/inventories/k3s_{{ k8s_cluster_name }}"
 
 k8s_cluster_controlplane_group: k8s_controlplane_{{ k8s_cluster_name }}
 k8s_cluster_workers_group: k8s_workers_{{ k8s_cluster_name }}

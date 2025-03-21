@@ -84,6 +84,11 @@ if ! command_exists "nmap"; then
   exit 1
 fi
 
+if ! command_exists "ansible-inventory"; then
+  print_error "ansible doesn't seem to be installed. Please head on over to your OS package manager to install it"
+  exit 1
+fi
+
 if [ ! -f "${ENV_FILE_PATH}" ]; then
   cp "${DEFAULT_ENV_FILE_PATH}" "${ENV_FILE_PATH}"
   print_msg "ENV file created"

@@ -1,0 +1,56 @@
+# - name: K3S Token | Ensure pwgen is installed
+#   ansible.builtin.package:
+#     name: pwgen
+#     state: present
+#   become: true
+
+- name: K3S Token | set .env file path
+  ansible.builtin.set_fact:
+    env_file_path: "{{ playbook_dir }}/../.env"
+
+- name: K3S Token | Check if .env file exists
+  ansible.builtin.stat:
+    path: "{{ env_file_path }}"
+  register: env_file_stat
+
+- name: K3S Token | Read .env file
+  ansible.builtin.slurp:
+    path: "{{ env_file_path }}"
+  register: env_file_content
+  when: env_file_stat.stat.exists
+
+- name: print env_file_content
+  ansible.builtin.debug:
+    var: env_file_content
+
+- name: K3S Token | Parse .env content
+  ansible.builtin.set_fact: "{{ dict(env_file_lines | map('regex_search', '^(\\w+)=(.*)$') | select('defined') | list) }}"
+  vars:
+    env_file_lines: "{{ env_file_content.content | b64decode | split('\n') }}"
+  when: env_file_stat.stat.exists
+
+- name: Display environment variables
+  command: env
+  environment: "{{ env_vars }}"
+
+- name: K3S Token | Set K3S_TOKEN fact if it exists in .env
+  ansible.builtin.set_fact:
+    k3s_token: "{{ env_vars['K3S_TOKEN'] }}"
+  when: env_vars is defined and 'K3S_TOKEN' in env_vars
+
+- name: K3S Token | Generate new K3S_TOKEN if not present
+  ansible.builtin.set_fact:
+    k3s_token: "{{ lookup('community.general.random_string', length=64, special=False) }}"
+  when: k3s_token is not defined
+
+- name: Print the generated token
+  ansible.builtin.debug:
+    msg: "{{ k3s_token }}"
+  when: k3s_token is defined
+
+- name: K3S Token | Append K3S_TOKEN to .env if it was generated
+  ansible.builtin.lineinfile:
+    path: "{{ env_file_path }}"
+    line: "K3S_TOKEN={{ k3s_token }}"
+    create: yes
+  when: env_vars is not defined or 'K3S_TOKEN' not in env_vars

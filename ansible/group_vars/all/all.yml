@@ -1,5 +1,5 @@
 ---
-domain: mng.home.lan
+domain: srv.lan
 hostname_prefix: vmm
 
 locale: en_US.UTF-8

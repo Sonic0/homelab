@@ -2,26 +2,27 @@
 - name: k8s cluster init
   hosts: all
   gather_facts: true
-
-  vars:
-    default_private_key_file: "{{ lookup('env', 'HOME') }}/.ssh/k8s.mng.home.lan"
-    server_private_key_file: "{{ ansible_ssh_private_key_file | default(default_private_key_file) }"
+  tags: ["init", "k3s", "setup"]
 
   roles:
     - role: timezone
       become: true
 
-- name: K3S installation
+- name: K3S pre
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
+  tags: ["init", "k3s", "setup"]
 
   roles:
     - role: k8s/cluster_init
 
-# - name: k8s apps
-#   hosts: localhost
-#   gather_facts: false
+- name: k8s apps
+  hosts: localhost
+  gather_facts: true
+  tags: ["init", "k3s", "apps"]
+  environment:
+    K8S_AUTH_CONTEXT: k3s-homelab
 
-#   roles:
-#     - { role: k8s_apps/argocd }
+  roles:
+    - { role: k8s_apps/argocd }
 #     - { role: k8s_apps/vault_secrets }

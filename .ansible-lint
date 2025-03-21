@@ -1,6 +1,7 @@
 ---
 exclude_paths:
   - terraform/
+  - cluster/
   - tools/
 skip_list:
   - meta-no-info

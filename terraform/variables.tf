@@ -24,3 +24,9 @@ variable "template_name" {
   description = "The base VM from which to clone to create the new VM"
   type        = string
 }
+
+variable "k3s_token" {
+  description = "K3S token for worker nodes to join the cluster"
+  type        = string
+  sensitive   = true
+}
