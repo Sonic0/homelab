@@ -4,3 +4,7 @@ hostname_prefix: vmm
 
 locale: en_US.UTF-8
 timezone: Europe/Rome
+
+vault_secrets:
+  - path: secret/argocd
+    kv: grafana-api-key={{ lookup('env', 'ARGOCD_GRAFANA_API_KEY') }}

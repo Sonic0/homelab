@@ -8,6 +8,6 @@ roleRef:
   kind: ClusterRole
   name: system:auth-delegator
 subjects:
-- kind: ServiceAccount
-  name: argocd-repo-server
-  namespace: argocd
+  - kind: ServiceAccount
+    name: argocd-repo-server
+    namespace: argocd

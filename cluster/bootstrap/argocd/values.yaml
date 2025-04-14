@@ -1,6 +1,8 @@
 argo-cd:
   global:
     domain: argocd.svr.home.lan
+  podLabels:
+    environment: homelab
   repoServer:
     serviceAccount:
       create: true
@@ -17,8 +19,8 @@ argo-cd:
         image: alpine:3.21
         env:
           - name: AVP_VERSION
-            # renovate: depName=argoproj-labs/argocd-vault-plugin
-            value: "v1.18.1"
+            # renovate: depName=
+            value: "v1.18.4"
         command: [sh, -c]
         args:
           - >-
@@ -147,10 +149,10 @@ argo-cd:
     ingress:
       enabled: true
       annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
+        # cert-manager.io/cluster-issuer: letsencrypt-prod
         nginx.ingress.kubernetes.io/ssl-passthrough: "true"
         nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      ingressClassName: nginx
+      # ingressClassName: nginx
       tls: true
     metrics:
       enabled: true

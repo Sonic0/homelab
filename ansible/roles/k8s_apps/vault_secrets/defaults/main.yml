@@ -1,7 +1,11 @@
 ---
 vault_namespace: vault
+vault_kubevault_version: v2025.2.10
+vault_kubevault_license_file: "{{ playbook_dir }}/roles/k8s_apps/vault_secrets/kubevault-license.txt"
+vault_kubevault_server_version: v1.18.4
+
 vault_pod: vault-0
-vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
+vault_token: "{{ lookup('env', 'VAULT_TOKEN') or vault_token }}"
 vault_token_k8s_secret_name: vault-root-token
 vault_token_k8s_secret_key: vaultData
 

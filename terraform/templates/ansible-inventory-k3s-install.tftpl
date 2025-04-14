@@ -13,4 +13,5 @@ server
 agent
 
 [k3s_cluster:vars]
-ansible_user=${ansible_user}
+ansible_user: ${ansible_user}
+extra_server_args: "--disable servicealb"

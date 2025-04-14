@@ -70,7 +70,8 @@ resource "terraform_data" "ansible" {
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook ${local.ansible_playbook} --tags 'apps' --extra-vars @group_vars/k3s_${local.cluster_name}.yml"
+    # TODO remove token
+    command     = "ansible-playbook ${local.ansible_playbook} --tags 'apps' --extra-vars @group_vars/k3s_${local.cluster_name}.yml --extra-vars \"vault_token=ftFMWQPJcudX0ieFHza3cbh7HNISN70BJQPB2v1x4g\""
     working_dir = "../ansible"
     environment = {
       ANSIBLE_INVENTORY        = local.ansible_k3s_inventory

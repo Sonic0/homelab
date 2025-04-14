@@ -1,0 +1,39 @@
+apiVersion: kubevault.com/v1alpha2
+kind: VaultServer
+metadata:
+  name: vault
+  namespace: "{{ vault_namespace }}"
+spec:
+  tls:
+    issuerRef:
+      apiGroup: "cert-manager.io"
+      kind: Issuer
+      name: vault-issuer
+  replicas: 1
+  backend:
+    file:
+      path: /mnt/vault/data
+      volumeClaimTemplate:
+        metadata:
+          name: vault-pvc
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Mi
+  version: "{{ vault_kubevault_server_version }}"
+  serviceTemplates:
+  - alias: vault
+    metadata:
+      annotations:
+        name: vault
+    spec:
+      type: NodePort
+  backend:
+    inmem: {}
+  unsealer:
+    secretShares: 4
+    secretThreshold: 2
+    mode:
+      kubernetesSecret:
+        secretName: {{ vault_token_k8s_secret_name }}

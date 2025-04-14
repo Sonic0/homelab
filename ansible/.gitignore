@@ -5,3 +5,4 @@ roles_galaxy/
 inventories/k3s_*
 inventories/k8s_*
 group_vars/k3s_*
+roles/k8s_apps/vault_secrets/kubevault-license.txt
