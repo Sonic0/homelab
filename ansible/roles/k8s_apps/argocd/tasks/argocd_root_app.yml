@@ -10,7 +10,6 @@
   ansible.builtin.command: >
     helm template
       {{ argocd_root_app_chart }}
-      --name-template root
       --namespace {{ argocd_namespace }}
       --include-crds
       {{ argocd_root_app_set_repo | default('', true) }}

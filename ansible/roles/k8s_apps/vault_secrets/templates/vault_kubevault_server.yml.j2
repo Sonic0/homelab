@@ -4,33 +4,27 @@ metadata:
   name: vault
   namespace: "{{ vault_namespace }}"
 spec:
-  tls:
-    issuerRef:
-      apiGroup: "cert-manager.io"
-      kind: Issuer
-      name: vault-issuer
-  replicas: 1
+ # tls:
+ #   issuerRef:
+ #     apiGroup: "cert-manager.io"
+ #     kind: Issuer
+ #     name: vault-issuer
+  replicas: 2
   backend:
-    file:
-      path: /mnt/vault/data
-      volumeClaimTemplate:
-        metadata:
-          name: vault-pvc
-        spec:
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 100Mi
+    raft:
+      storage:
+        storageClassName: "local-path"
+        resources:
+          requests:
+            storage: 200Mi
   version: "{{ vault_kubevault_server_version }}"
   serviceTemplates:
-  - alias: vault
-    metadata:
-      annotations:
-        name: vault
-    spec:
-      type: NodePort
-  backend:
-    inmem: {}
+    - alias: vault
+      metadata:
+        annotations:
+          name: vault
+      spec:
+        type: NodePort
   unsealer:
     secretShares: 4
     secretThreshold: 2

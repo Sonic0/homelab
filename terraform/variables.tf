@@ -30,3 +30,9 @@ variable "k3s_token" {
   type        = string
   sensitive   = true
 }
+
+variable "k3s_vault_token" {
+  description = "K3S vault token for authentication"
+  type        = string
+  sensitive   = true
+}

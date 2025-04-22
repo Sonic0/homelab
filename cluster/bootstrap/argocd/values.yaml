@@ -20,7 +20,7 @@ argo-cd:
         env:
           - name: AVP_VERSION
             # renovate: depName=
-            value: "v1.18.4"
+            value: "v1.18.1"
         command: [sh, -c]
         args:
           - >-
@@ -84,11 +84,6 @@ argo-cd:
   configs:
     cm:
       admin.enabled: "true"
-      # oidc.config: |
-      #   name: Dex
-      #   issuer: https://dex.auth.devmem.ru
-      #   clientID: argocd
-      #   clientSecret: $oidc.dex.clientSecret
       statusbadge.enabled: true
       server.rbac.log.enforce.enable: "true"
       exec.enabled: "true"

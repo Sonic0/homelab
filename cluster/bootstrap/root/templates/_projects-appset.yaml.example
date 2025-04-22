@@ -20,7 +20,7 @@ spec:
     spec:
       project: projects
       source:
-        repoURL: {{ .Values.charts_repo }}
+        repoURL: {{ .Values.charts_repo }} # external repo for charts
         chart: {{ `"{{chart}}"` }}
         targetRevision: {{ `"{{revision}}"` }}
       destination:

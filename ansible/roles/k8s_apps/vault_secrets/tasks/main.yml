@@ -24,45 +24,46 @@
     helm_kubevault_action: "upgrade"
   when: kubevault_deploy_info.resources | length > 0
 
-# Add automatically retrieve of license https://github.com/appscode/offline-license-server#offline-license-server
-- name: vault - init - helm {{ helm_kubevault_action }}
-  ansible.builtin.command: >
-    helm {{ helm_kubevault_action }} kubevault oci://ghcr.io/appscode-charts/kubevault \
-      --version {{ vault_kubevault_version }} \
-      --namespace {{ vault_namespace }} \
-      --set-file global.license={{ vault_kubevault_license_file }} \
-      --wait --burst-limit=10000 --debug
-  register: vault_kubevault_helm_install_result
-  changed_when: false
+# # Add automatically retrieve of license https://github.com/appscode/offline-license-server#offline-license-server
+# - name: vault - init - helm {{ helm_kubevault_action }}
+#   ansible.builtin.command: >
+#     helm {{ helm_kubevault_action }} kubevault oci://ghcr.io/appscode-charts/kubevault \
+#       --version {{ vault_kubevault_version }} \
+#       --namespace {{ vault_namespace }} \
+#       --set-file global.license={{ vault_kubevault_license_file }} \
+#       --wait --burst-limit=10000 --debug
+#   register: vault_kubevault_helm_install_result
+#   changed_when: false
 
-- name: vault - wait for pod Ready condition (initialized and unsealed)
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Pod
-    label_selectors:
-      - app.kubernetes.io/instance=kubevault
-      - app.kubernetes.io/name=kubevault-operator
-    namespace: "{{ vault_namespace }}"
-    wait: true
-    wait_condition:
-      type: Ready
-      status: "True"
-    wait_timeout: 1200
-  register: vault_pod_info
-  until: vault_pod_info.resources[0].status.conditions[0].status == "True"
-  retries: 10
+# - name: vault - wait for pod Ready condition (initialized and unsealed)
+#   kubernetes.core.k8s_info:
+#     api_version: v1
+#     kind: Pod
+#     label_selectors:
+#       - app.kubernetes.io/instance=kubevault
+#       - app.kubernetes.io/name=kubevault-operator
+#     namespace: "{{ vault_namespace }}"
+#     wait: true
+#     wait_condition:
+#       type: Ready
+#       status: "True"
+#     wait_timeout: 1200
+#   register: vault_pod_info
+#   until: vault_pod_info.resources[0].status.conditions[0].status == "True"
+#   retries: 10
 
-- name: vault - install kubevault server version
-  kubernetes.core.k8s:
-    definition: "{{ lookup('template', 'vault_kubevault_server_version.yml.j2') | from_yaml_all }}"
-    state: present
-  register: vault_kubevault_kubectl_install_server_version
+# Use predefined version of kubevault server
+# - name: vault - install kubevault server version
+#   kubernetes.core.k8s:
+#     definition: "{{ lookup('template', 'vault_kubevault_server_version.yml.j2') | from_yaml_all }}"
+#     state: present
+#   register: vault_kubevault_kubectl_install_server_version
 
-- name: vault - install kubevault server
-  kubernetes.core.k8s:
-    definition: "{{ lookup('template', 'vault_kubevault_server.yml.j2') | from_yaml_all }}"
-    state: present
-  register: vault_kubevault_kubectl_install_server
+# - name: vault - install kubevault server
+#   kubernetes.core.k8s:
+#     definition: "{{ lookup('template', 'vault_kubevault_server.yml.j2') | from_yaml_all }}"
+#     state: present
+#   register: vault_kubevault_kubectl_install_server
 
 - name: vault token tasks
   no_log: true
@@ -81,22 +82,21 @@
         vault_token: >-
           {{ _vault_token_query.resources[0].data[vault_token_k8s_secret_key] | b64decode }}
 
-- name: vault - enable KV secret engine
-  kubernetes.core.k8s_exec:
-    namespace: "{{ vault_namespace }}"
-    label_selectors:
-      - app.kubernetes.io/instance=kubevault
-      - app.kubernetes.io/name=kubevault-operator
-    command: >
-      sh -c 'VAULT_TOKEN={{ vault_token }} vault secrets enable -version=1 kv'
-  no_log: true
+# TODO remove -address when TLS enabled
+# - name: vault - enable KV secret engine
+#   kubernetes.core.k8s_exec:
+#     namespace: "{{ vault_namespace }}"
+#     pod: "{{ vault_pod }}"
+#     command: >
+#       sh -c 'VAULT_TOKEN={{ vault_token }} vault secrets enable -address=http://127.0.0.1:8200 -version=1 kv'
+#   no_log: true
 
 - name: vault - put secrets
   kubernetes.core.k8s_exec:
     namespace: "{{ vault_namespace }}"
     pod: "{{ vault_pod }}"
     command: >
-      sh -c 'VAULT_TOKEN={{ vault_token }} vault kv put -format=json \
+      sh -c 'VAULT_TOKEN={{ vault_token }} vault kv put -address=http://127.0.0.1:8200 -format=json \
       {{ item.path }} {{ item.kv }}'
-  no_log: true
+  # no_log: true
   loop: "{{ vault_secrets }}"
