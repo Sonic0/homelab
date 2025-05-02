@@ -8,3 +8,10 @@ timezone: Europe/Rome
 vault_secrets:
   - path: secret/argocd
     kv: grafana-api-key={{ lookup('env', 'ARGOCD_GRAFANA_API_KEY') }}
+  - path: secret/cert-manager
+    kv: "selectel-username={{ lookup('env', 'SELECTEL_USERNAME') }}
+      selectel-password={{ lookup('env', 'SELECTEL_PASSWORD') }}
+      selectel-account-id={{ lookup('env', 'SELECTEL_ACCOUNT_ID') }}
+      selectel-project-id={{ lookup('env', 'SELECTEL_PROJECT_ID') }}"
+  - path: secret/k8s-registry-auth
+    kv: dockerconfigjson={{ lookup('env', 'K8S_REGISTRY_AUTH') }}

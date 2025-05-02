@@ -163,26 +163,26 @@ argo-cd:
       enabled: true
       serviceMonitor:
         enabled: true
-  notifications:
-    secret:
-      create: false
-    notifiers:
-      service.email: |
-        host: $email-host
-        port: $email-port
-        username: $email-username
-        password: $email-password
-        from: $email-username
-      service.grafana: |
-        apiUrl: http://grafana.observability/api
-        apiKey: $grafana-api-key
-    subscriptions:
-      - recipients:
-          - email: $email-address
-        triggers:
-          - on-deployed
-          - on-health-degraded
-          - on-sync-failed
+  # notifications:
+  #   secret:
+  #     create: false
+  #   notifiers:
+  #     service.email: |
+  #       host: $email-host
+  #       port: $email-port
+  #       username: $email-username
+  #       password: $email-password
+  #       from: $email-username
+  #     service.grafana: |
+  #       apiUrl: http://grafana.observability/api
+  #       apiKey: $grafana-api-key
+  #   subscriptions:
+  #     - recipients:
+  #         - email: $email-address
+  #       triggers:
+  #         - on-deployed
+  #         - on-health-degraded
+  #         - on-sync-failed
     templates:
       template.app-deployed: |
         email:

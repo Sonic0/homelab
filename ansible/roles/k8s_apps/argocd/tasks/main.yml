@@ -14,7 +14,7 @@
   no_log: true
 
 - name: argocd - init tasks
-  when: argocd_namespace_result.changed  # noqa no-handler
+  when: argocd_namespace_result.changed # noqa no-handler
   block:
     - name: argocd - init - helm dependency update
       ansible.builtin.command: >
