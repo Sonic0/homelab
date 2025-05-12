@@ -1,0 +1,8 @@
+apiVersion: v2
+name: pihole
+version: 0.0.1
+description: The PiHole Helm chart for Kubernetes
+dependencies:
+  - name: pihole
+    version: 2.19.12
+    repository: https://wolviecb.github.io/pihole-kubernetes/

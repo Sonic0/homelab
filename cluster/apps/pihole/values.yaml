@@ -20,8 +20,15 @@ replicaCount: 1
 
 # -- Set Pi-hole admin password
 admin:
-  existingSecret: "pihole-admin-password"
-  passwordKey: "password"
+  existingSecret: pihole-secret
+  password: admin-password
+
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+    - 127.0.0.1
+    - 1.1.1.2
 
 # -- Service configuration
 serviceWeb:
@@ -30,6 +37,7 @@ serviceWeb:
   port: 80
   annotations:
     metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: pihole-svc
   externalTrafficPolicy: Local
 
 serviceDns:
@@ -38,6 +46,7 @@ serviceDns:
   port: 53
   annotations:
     metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: pihole-svc
   externalTrafficPolicy: Local
 
 # -- DNS Configuration
