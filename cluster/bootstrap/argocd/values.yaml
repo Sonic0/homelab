@@ -70,7 +70,7 @@ argo-cd:
             subPath: argocd-vault-plugin
         env:
           - name: VAULT_ADDR
-            value: http://vault.vault:8200
+            value: http://vault.vault.svc.cluster.local:8200
           - name: AVP_TYPE
             value: vault
           - name: AVP_AUTH_TYPE
@@ -100,8 +100,8 @@ argo-cd:
           end
         end
         return hs
-      ? resource.customizations.ignoreDifferences.apiextensions.k8s.io_CustomResourceDefinition
-      : |
+      resource.customizations.ignoreDifferences.apiextensions.k8s.io_CustomResourceDefinition:
+        |
         jqPathExpressions:
           - '.spec.conversion.webhook.clientConfig.caBundle'
           - '.spec.versions[]?.additionalPrinterColumns[]?.priority | select(. == 0)'
@@ -163,26 +163,26 @@ argo-cd:
       enabled: true
       serviceMonitor:
         enabled: true
-  # notifications:
-  #   secret:
-  #     create: false
-  #   notifiers:
-  #     service.email: |
-  #       host: $email-host
-  #       port: $email-port
-  #       username: $email-username
-  #       password: $email-password
-  #       from: $email-username
-  #     service.grafana: |
-  #       apiUrl: http://grafana.observability/api
-  #       apiKey: $grafana-api-key
-  #   subscriptions:
-  #     - recipients:
-  #         - email: $email-address
-  #       triggers:
-  #         - on-deployed
-  #         - on-health-degraded
-  #         - on-sync-failed
+  notifications:
+    secret:
+      create: false
+    notifiers:
+      service.email: |
+        host: $email-host
+        port: $email-port
+        username: $email-username
+        password: $email-password
+        from: $email-username
+    #     service.grafana: |
+    #       apiUrl: http://grafana.observability/api
+    #       apiKey: $grafana-api-key
+    subscriptions:
+      - recipients:
+          - email: $email-address
+        triggers:
+          - on-deployed
+          - on-health-degraded
+          - on-sync-failed
     templates:
       template.app-deployed: |
         email:

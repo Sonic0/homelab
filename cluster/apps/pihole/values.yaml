@@ -6,31 +6,76 @@ dnsmasq:
   customCnameEntries:
     - cname=sonicwallace.ap,ap
 
-persistentVolumeClaim:
-  enabled: true
-
-ingress:
-  enabled: true
-  hosts:
-    - pihole.home.lan
-
-serviceWeb:
-  loadBalancerIP: 192.168.1.81
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  type: ClusterIP
-
-serviceDns:
-  loadBalancerIP: 192.168.1.81
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  type: LoadBalancer
-
 # enables cloudflare tunnel sidecar container
 # and sets upstream dns in pihole to leverage it
 doh:
   enabled: true
   pullPolicy: Always
-  envVars: {
-    DOH_UPSTREAM: "https://1.1.1.1/dns-query"
-  }
+  envVars: { DOH_UPSTREAM: "https://1.1.1.2/dns-query" }
+
+# values.yaml
+
+# -- Deployment settings
+replicaCount: 1
+
+# -- Set Pi-hole admin password
+admin:
+  existingSecret: "pihole-admin-password"
+  passwordKey: "password"
+
+# -- Service configuration
+serviceWeb:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.100
+  port: 80
+  annotations:
+    metallb.universe.tf/address-pool: default
+  externalTrafficPolicy: Local
+
+serviceDns:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.100
+  port: 53
+  annotations:
+    metallb.universe.tf/address-pool: default
+  externalTrafficPolicy: Local
+
+# -- DNS Configuration
+DNS1: 1.1.1.1
+DNS2: 8.8.8.8
+
+# -- Web interface
+web:
+  password: "" # se non usi existingSecret
+
+# -- Persistent storage
+persistentVolumeClaim:
+  enabled: true
+  size: 2Gi
+  storageClass: "local-path"
+
+# -- Ingress settings for Traefik
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+  hosts:
+    - host: pihole.svr.lan
+      paths:
+        - path: /
+          pathType: Prefix
+  # tls:
+  #   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
+  #     hosts:
+  #       - pihole.local.lab
+
+# -- Resources and affinity (optional)
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
