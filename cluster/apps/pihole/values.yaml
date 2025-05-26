@@ -1,21 +1,4 @@
 ---
-dnsmasq:
-  customDnsEntries:
-    - address=/ap/192.168.20.20
-
-  customCnameEntries:
-    - cname=sonicwallace.ap,ap
-
-# enables cloudflare tunnel sidecar container
-# and sets upstream dns in pihole to leverage it
-doh:
-  enabled: true
-  pullPolicy: Always
-  envVars: { DOH_UPSTREAM: "https://1.1.1.2/dns-query" }
-
-# values.yaml
-
-# -- Deployment settings
 replicaCount: 1
 
 # -- Set Pi-hole admin password
@@ -31,47 +14,44 @@ podDnsConfig:
     - 1.1.1.2
 
 # -- Service configuration
+serviceDns:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.100
+  annotations:
+    metallb.universe.tf/address-pool: server-lan-pool
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceDhcp:
+  enabled: false
+
 serviceWeb:
   type: LoadBalancer
   loadBalancerIP: 192.168.20.100
   port: 80
   annotations:
-    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/address-pool: server-lan-pool
     metallb.universe.tf/allow-shared-ip: pihole-svc
-  externalTrafficPolicy: Local
-
-serviceDns:
-  type: LoadBalancer
-  loadBalancerIP: 192.168.20.100
-  port: 53
-  annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  externalTrafficPolicy: Local
 
 # -- DNS Configuration
-DNS1: 1.1.1.1
-DNS2: 8.8.8.8
-
-# -- Web interface
-web:
-  password: "" # se non usi existingSecret
+DNS1: 1.1.1.2
+DNS2: 1.0.0.2
 
 # -- Persistent storage
 persistentVolumeClaim:
   enabled: true
-  size: 2Gi
+  size: 1Gi
   storageClass: "local-path"
 
 # -- Ingress settings for Traefik
 ingress:
   enabled: true
+  ingressClassName: traefik
   annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web
     traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+    metallb.universe.tf/address-pool: server-lan-pool
   hosts:
-    - host: pihole.svr.lan
+    - host: pihole.server.lan
       paths:
         - path: /
           pathType: Prefix
@@ -88,3 +68,17 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+
+doh:
+  enabled: true
+  pullPolicy: Always
+
+dnsmasq:
+  customDnsEntries:
+    - address=/ap/192.168.20.20
+
+  customCnameEntries:
+    - cname=sonicwallace.ap,ap
+
+extraEnvVars:
+  TZ: "Europe/Rome"

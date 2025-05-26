@@ -97,5 +97,32 @@
     command: >
       sh -c 'VAULT_TOKEN={{ vault_token }} vault kv put -address=http://127.0.0.1:8200 -format=json \
       {{ item.path }} {{ item.kv }}'
-  # no_log: true
+  no_log: true
   loop: "{{ vault_secrets }}"
+
+- name: vault - create Role for External Secrets
+  kubernetes.core.k8s_exec:
+    namespace: "{{ vault_namespace }}"
+    pod: "{{ vault_pod }}"
+    command: >
+      sh -c 'VAULT_TOKEN={{ vault_token }} vault write -address=http://127.0.0.1:8200 \
+      auth/kubernetes/role/external-secrets \
+      bound_service_account_names=external-secrets \
+      bound_service_account_namespaces=external-secrets \
+      policies=external-secrets-policy \
+      token_ttl=24h
+
+- name: vault - create policy for External Secrets
+  kubernetes.core.k8s_exec:
+    namespace: "{{ vault_namespace }}"
+    pod: "{{ vault_pod }}"
+    command: >
+      sh -c 'VAULT_TOKEN={{ vault_token }} vault write -address=http://127.0.0.1:8200 \
+      external-secrets-policy - <<EOF
+      path "secret/*" {
+        capabilities = ["read"]
+      }
+      path "secret/metadata/*" {
+        capabilities = ["list"]
+      }
+      EOF
