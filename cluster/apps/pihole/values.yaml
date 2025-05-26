@@ -17,7 +17,7 @@ pihole:
   # -- Service configuration
   serviceDns:
     type: LoadBalancer
-    loadBalancerIP: 192.168.20.100
+    loadBalancerIP: 192.168.20.110
     annotations:
       metallb.universe.tf/address-pool: server-lan-pool
       metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -27,7 +27,7 @@ pihole:
 
   serviceWeb:
     type: LoadBalancer
-    loadBalancerIP: 192.168.20.100
+    loadBalancerIP: 192.168.20.110
     annotations:
       metallb.universe.tf/address-pool: server-lan-pool
       metallb.universe.tf/allow-shared-ip: pihole-svc
