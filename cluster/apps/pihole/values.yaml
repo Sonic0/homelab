@@ -1,84 +1,85 @@
 ---
-replicaCount: 1
+pihole:
+  replicaCount: 1
 
-# -- Set Pi-hole admin password
-admin:
-  existingSecret: pihole-secret
-  password: admin-password
+  # -- Set Pi-hole admin password
+  admin:
+    existingSecret: pihole-secret
+    password: admin-password
 
-podDnsConfig:
-  enabled: true
-  policy: "None"
-  nameservers:
-    - 127.0.0.1
-    - 1.1.1.2
+  podDnsConfig:
+    enabled: true
+    policy: "None"
+    nameservers:
+      - 127.0.0.1
+      - 1.1.1.2
 
-# -- Service configuration
-serviceDns:
-  type: LoadBalancer
-  loadBalancerIP: 192.168.20.100
-  annotations:
-    metallb.universe.tf/address-pool: server-lan-pool
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Service configuration
+  serviceDns:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.20.100
+    annotations:
+      metallb.universe.tf/address-pool: server-lan-pool
+      metallb.universe.tf/allow-shared-ip: pihole-svc
 
-serviceDhcp:
-  enabled: false
+  serviceDhcp:
+    enabled: false
 
-serviceWeb:
-  type: LoadBalancer
-  loadBalancerIP: 192.168.20.100
-  annotations:
-    metallb.universe.tf/address-pool: server-lan-pool
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+  serviceWeb:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.20.100
+    annotations:
+      metallb.universe.tf/address-pool: server-lan-pool
+      metallb.universe.tf/allow-shared-ip: pihole-svc
 
-# -- DNS Configuration
-DNS1: 1.1.1.2
-DNS2: 1.0.0.2
+  # -- DNS Configuration
+  DNS1: 1.1.1.2
+  DNS2: 1.0.0.2
 
-# -- Persistent storage
-persistentVolumeClaim:
-  enabled: true
-  size: 1Gi
-  storageClass: "local-path"
+  # -- Persistent storage
+  persistentVolumeClaim:
+    enabled: true
+    size: 1Gi
+    storageClass: "local-path"
 
-# -- Ingress settings for Traefik
-# ingress:
-#   enabled: true
-#   ingressClassName: traefik
-#   annotations:
-#     traefik.ingress.kubernetes.io/router.entrypoints: web
-#     # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
-#     metallb.universe.tf/address-pool: server-lan-pool
-#     # metallb.universe.tf/load-balancer-ip: 192.168.20.100
-#   hosts:
-#     - host: pihole.server.lan
-#       paths:
-#         - path: /
-#           pathType: Prefix
-# tls:
-#   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
-#     hosts:
-#       - pihole.local.lab
+  # -- Ingress settings for Traefik
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: traefik
+  #   annotations:
+  #     traefik.ingress.kubernetes.io/router.entrypoints: web
+  #     # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+  #     metallb.universe.tf/address-pool: server-lan-pool
+  #     # metallb.universe.tf/load-balancer-ip: 192.168.20.100
+  #   hosts:
+  #     - host: pihole.server.lan
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  # tls:
+  #   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
+  #     hosts:
+  #       - pihole.local.lab
 
-# -- Resources and affinity (optional)
-resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
+  # -- Resources and affinity (optional)
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
-doh:
-  enabled: true
-  pullPolicy: Always
+  doh:
+    enabled: true
+    pullPolicy: Always
 
-dnsmasq:
-  customDnsEntries:
-    - address=/ap/192.168.20.20
+  dnsmasq:
+    customDnsEntries:
+      - address=/ap/192.168.20.20
 
-  customCnameEntries:
-    - cname=sonicwallace.ap,ap
+    customCnameEntries:
+      - cname=sonicwallace.ap,ap
 
-extraEnvVars:
-  TZ: "Europe/Rome"
+  extraEnvVars:
+    TZ: "Europe/Rome"
