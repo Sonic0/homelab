@@ -27,7 +27,6 @@ serviceDhcp:
 serviceWeb:
   type: LoadBalancer
   loadBalancerIP: 192.168.20.100
-  port: 80
   annotations:
     metallb.universe.tf/address-pool: server-lan-pool
     metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -43,22 +42,23 @@ persistentVolumeClaim:
   storageClass: "local-path"
 
 # -- Ingress settings for Traefik
-ingress:
-  enabled: true
-  ingressClassName: traefik
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
-    metallb.universe.tf/address-pool: server-lan-pool
-  hosts:
-    - host: pihole.server.lan
-      paths:
-        - path: /
-          pathType: Prefix
-  # tls:
-  #   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
-  #     hosts:
-  #       - pihole.local.lab
+# ingress:
+#   enabled: true
+#   ingressClassName: traefik
+#   annotations:
+#     traefik.ingress.kubernetes.io/router.entrypoints: web
+#     # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+#     metallb.universe.tf/address-pool: server-lan-pool
+#     # metallb.universe.tf/load-balancer-ip: 192.168.20.100
+#   hosts:
+#     - host: pihole.server.lan
+#       paths:
+#         - path: /
+#           pathType: Prefix
+# tls:
+#   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
+#     hosts:
+#       - pihole.local.lab
 
 # -- Resources and affinity (optional)
 resources:
