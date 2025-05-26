@@ -4,8 +4,8 @@ pihole:
 
   # -- Set Pi-hole admin password
   admin:
-    existingSecret: pihole-secret
-    password: admin-password
+    existingSecret: pihole-password
+    password: password
 
   podDnsConfig:
     enabled: true
