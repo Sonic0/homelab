@@ -26,7 +26,13 @@ metadata:
 data:
   kubernetes.yaml: |
     mode: cluster
-  settings.yaml: ""
+    ingress: true
+    traefik: true
+  settings.yaml: |
+    title: One Homepage to Rule Them All
+    description: A dynamic homepage for my Kubernetes cluster
+    theme: dark
+    color: teal
   #settings.yaml: |
   #  providers:
   #    longhorn:
