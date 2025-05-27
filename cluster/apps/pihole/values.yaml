@@ -11,8 +11,8 @@ pihole:
     enabled: true
     policy: "None"
     nameservers:
-      - 127.0.0.1
       - 1.1.1.2
+      - 1.0.0.2
 
   # -- Service configuration
   serviceDns:
@@ -33,8 +33,8 @@ pihole:
       metallb.universe.tf/allow-shared-ip: pihole-svc
 
   # -- DNS Configuration
-  DNS1: 1.1.1.2
-  DNS2: 1.0.0.2
+  DNS1: "1.1.1.2"
+  DNS2: "1.0.0.2"
 
   # -- Persistent storage
   persistentVolumeClaim:
@@ -43,19 +43,15 @@ pihole:
     storageClass: "local-path"
 
   # -- Ingress settings for Traefik
-  # ingress:
-  #   enabled: true
-  #   ingressClassName: traefik
-  #   annotations:
-  #     traefik.ingress.kubernetes.io/router.entrypoints: web
-  #     # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
-  #     metallb.universe.tf/address-pool: server-lan-pool
-  #     # metallb.universe.tf/load-balancer-ip: 192.168.20.100
-  #   hosts:
-  #     - host: pihole.server.lan
-  #       paths:
-  #         - path: /
-  #           pathType: Prefix
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+      # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+      metallb.universe.tf/address-pool: server-lan-pool
+    hosts:
+      - pihole.server.lan
   # tls:
   #   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
   #     hosts:
