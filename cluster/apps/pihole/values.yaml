@@ -11,10 +11,8 @@ pihole:
     enabled: true
     policy: "None"
     nameservers:
+      - 127.0.0.1
       - 1.1.1.2
-      - 1.0.0.2
-    envVars:
-      TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
   # -- Service configuration
   serviceDns:
@@ -52,12 +50,12 @@ pihole:
       traefik.ingress.kubernetes.io/router.entrypoints: web
       metallb.universe.tf/address-pool: server-lan-pool
       gethomepage.dev/enabled: "true"
-      gethomepage.dev/description: "Pi-hole DNS and DHCP server"
+      gethomepage.dev/description: "Pi-hole DNS server"
       gethomepage.dev/group: Network
       gethomepage.dev/icon: pihole.png
       gethomepage.dev/name: Pi-hole
       gethomepage.dev/widget.type: "pihole"
-      gethomepage.dev/widget.url: "http://pihole.server.lan"
+      gethomepage.dev/widget.url: "http://pihole.server.lan/admin"
       gethomepage.dev/pod-selector: ""
     path: /admin
     hosts:
@@ -78,10 +76,11 @@ pihole:
 
   dnsmasq:
     customDnsEntries:
-      - address=/ap/192.168.20.20
+      - address=/sonicwall.server.lan/192.168.20.20
+      - address=/pihole.server.lan/192.168.20.100
 
     customCnameEntries:
-      - cname=sonicwallace.ap,ap
+      - cname=sonic.ap,sonicwall.server.lan
 
   extraEnvVars:
     TZ: "Europe/Rome"
