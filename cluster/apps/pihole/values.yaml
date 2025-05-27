@@ -13,6 +13,8 @@ pihole:
     nameservers:
       - 1.1.1.2
       - 1.0.0.2
+    envVars:
+      TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
   # -- Service configuration
   serviceDns:
@@ -48,16 +50,12 @@ pihole:
     ingressClassName: traefik
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
-      # traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
       metallb.universe.tf/address-pool: server-lan-pool
+    path: /admin
     hosts:
       - pihole.server.lan
-  # tls:
-  #   - secretName: pihole-tls  # oppure ometti se non usi HTTPS
-  #     hosts:
-  #       - pihole.local.lab
+    # tls:
 
-  # -- Resources and affinity (optional)
   resources:
     limits:
       cpu: 500m
