@@ -1,6 +1,7 @@
 ---
 pihole:
   replicaCount: 1
+  maxSurge: 2
 
   # -- Set Pi-hole admin password
   admin:
@@ -47,6 +48,7 @@ pihole:
     enabled: true
     ingressClassName: traefik
     annotations:
+      traefik.ingress.kubernetes.io/router.tls: "false"
       traefik.ingress.kubernetes.io/router.entrypoints: web
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Pi-hole DNS server"
@@ -54,11 +56,11 @@ pihole:
       gethomepage.dev/icon: pihole.png
       gethomepage.dev/name: Pi-hole
       gethomepage.dev/widget.type: "pihole"
-      gethomepage.dev/widget.url: "http://pihole.server.lan/admin"
+      gethomepage.dev/widget.url: "http://pihole.srv.home.lan/admin"
       gethomepage.dev/pod-selector: ""
     path: /admin
     hosts:
-      - pihole.server.lan
+      - pihole.srv.home.lan
     # tls:
 
   resources:
@@ -75,17 +77,17 @@ pihole:
 
   dnsmasq:
     customDnsEntries:
-      - address=/switch.server.lan/192.168.20.20
-      - address=/sonicwallap.server.lan/192.168.20.21
-      - address=/zyxelap.server.lan/192.168.20.22
-      - address=/pihole.server.lan/192.168.20.100
-      - address=/homelab.server.lan/192.168.20.100
-      - address=/argocd.server.lan/192.168.20.100
-      - address=/vault.server.lan/192.168.20.100
+      - address=/switch.net.home.lan/192.168.20.20
+      - address=/sonicwallap.net.home.lan/192.168.20.21
+      - address=/zyxelap.srv.home.lan/192.168.20.22
+      - address=/pihole.srv.home.lan/192.168.20.100
+      - address=/homepage.srv.home.lan/192.168.20.100
+      - address=/argocd.srv.home.lan/192.168.20.100
+      - address=/vault.srv.home.lan/192.168.20.100
 
     customCnameEntries:
-      - cname=sonic.ap,sonicwallap.server.lan
-      - cname=zyxel.ap,zyxelap.server.lan
+      - cname=sonic.ap,sonicwallap.srv.home.lan
+      - cname=zyxel.ap,zyxelap.srv.home.lan
 
   extraEnvVars:
     TZ: "Europe/Rome"

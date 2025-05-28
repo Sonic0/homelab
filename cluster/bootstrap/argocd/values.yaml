@@ -1,6 +1,6 @@
 argo-cd:
   global:
-    domain: argocd.svr.home.lan
+    domain: argocd.srv.home.lan
   podLabels:
     environment: homelab
   repoServer:
@@ -145,10 +145,17 @@ argo-cd:
       enabled: true
       annotations:
         # cert-manager.io/cluster-issuer: letsencrypt-prod
-        nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      # ingressClassName: nginx
-      tls: true
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/description: "ArgoCD server"
+        gethomepage.dev/group: CI-CD
+        gethomepage.dev/icon: argocd.png
+        gethomepage.dev/name: ArgoCD
+        gethomepage.dev/widget.type: "argocd"
+        gethomepage.dev/widget.url: "http://argocd.srv.home.lan"
+        gethomepage.dev/pod-selector: ""
+      ingressClassName: traefik
+      tls: false
     metrics:
       enabled: true
       serviceMonitor:

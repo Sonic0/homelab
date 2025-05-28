@@ -259,11 +259,10 @@ metadata:
     gethomepage.dev/icon: homepage.png
     gethomepage.dev/name: Homepage
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    metallb.universe.tf/address-pool: server-lan-pool
 spec:
   ingressClassName: traefik
   rules:
-    - host: "homepage.server.lan"
+    - host: "homepage.srv.home.lan"
       http:
         paths:
           - path: "/"
