@@ -25,12 +25,12 @@ pihole:
   serviceDhcp:
     enabled: false
 
-  serviceWeb:
-    type: LoadBalancer
-    loadBalancerIP: 192.168.20.110
-    annotations:
-      metallb.universe.tf/address-pool: server-lan-pool
-      metallb.universe.tf/allow-shared-ip: pihole-svc
+  # serviceWeb:
+  #   type: LoadBalancer
+  #   loadBalancerIP: 192.168.20.110
+  #   annotations:
+  #     metallb.universe.tf/address-pool: server-lan-pool
+  #     metallb.universe.tf/allow-shared-ip: pihole-svc
 
   # -- DNS Configuration
   DNS1: "1.1.1.2"
@@ -48,7 +48,6 @@ pihole:
     ingressClassName: traefik
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
-      metallb.universe.tf/address-pool: server-lan-pool
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Pi-hole DNS server"
       gethomepage.dev/group: Network
@@ -76,11 +75,17 @@ pihole:
 
   dnsmasq:
     customDnsEntries:
-      - address=/sonicwall.server.lan/192.168.20.20
+      - address=/switch.server.lan/192.168.20.20
+      - address=/sonicwallap.server.lan/192.168.20.21
+      - address=/zyxelap.server.lan/192.168.20.22
       - address=/pihole.server.lan/192.168.20.100
+      - address=/homelab.server.lan/192.168.20.100
+      - address=/argocd.server.lan/192.168.20.100
+      - address=/vault.server.lan/192.168.20.100
 
     customCnameEntries:
-      - cname=sonic.ap,sonicwall.server.lan
+      - cname=sonic.ap,sonicwallap.server.lan
+      - cname=zyxel.ap,zyxelap.server.lan
 
   extraEnvVars:
     TZ: "Europe/Rome"
