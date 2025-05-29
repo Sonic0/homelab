@@ -146,6 +146,7 @@ argo-cd:
       annotations:
         # cert-manager.io/cluster-issuer: letsencrypt-prod
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "false"
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: "ArgoCD server"
         gethomepage.dev/group: CI-CD

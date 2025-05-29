@@ -48,8 +48,8 @@ pihole:
     enabled: true
     ingressClassName: traefik
     annotations:
-      traefik.ingress.kubernetes.io/router.tls: "false"
       traefik.ingress.kubernetes.io/router.entrypoints: web
+      traefik.ingress.kubernetes.io/router.tls: "false"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Pi-hole DNS server"
       gethomepage.dev/group: Network
@@ -58,7 +58,7 @@ pihole:
       gethomepage.dev/widget.type: "pihole"
       gethomepage.dev/widget.url: "http://pihole.srv.home.lan/admin"
       gethomepage.dev/pod-selector: ""
-    path: /admin
+    path: /
     hosts:
       - pihole.srv.home.lan
     # tls:
