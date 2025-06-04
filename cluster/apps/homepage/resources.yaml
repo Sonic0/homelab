@@ -29,10 +29,16 @@ data:
     ingress: true
     traefik: true
   settings.yaml: |
-    title: One Homepage to Rule Them All
-    description: A dynamic homepage for my Kubernetes cluster
+    title: "One Homepage to Rule Them All"
+    description: "Dashboard for homelab services"
     theme: dark
-    color: teal
+    showStats: true
+    background:
+      image: https://w.wallhaven.cc/full/1q/wallhaven-1q83qg.jpg
+      blur: xl
+      saturate: 50
+      brightness: 25
+      opacity: 25
   #settings.yaml: |
   #  providers:
   #    longhorn:
@@ -45,20 +51,10 @@ data:
             - abbr: GH
               href: https://github.com/
   services.yaml: |
-    - My First Group:
-        - My First Service:
-            href: http://localhost/
+    - Network:
+        - PfSense:
+            href: http://fw.srv.home.lan/
             description: Homepage is awesome
-
-    - My Second Group:
-        - My Second Service:
-            href: http://localhost/
-            description: Homepage is the best
-
-    - My Third Group:
-        - My Third Service:
-            href: http://localhost/
-            description: Homepage is 😎
   widgets.yaml: |
     - kubernetes:
         cluster:
@@ -66,7 +62,7 @@ data:
           cpu: true
           memory: true
           showLabel: true
-          label: "cluster"
+          label: "K8S cluster"
         nodes:
           show: true
           cpu: true
@@ -76,20 +72,19 @@ data:
         backend: resources
         expanded: true
         cpu: true
+        cputemp: true
         memory: true
         network: default
-    - search:
-        provider: duckduckgo
-        target: _blank
+        units: metric
     - openmeteo:
-      label: Agugliano
-      latitude: 43.32371
-      longitude: 13.23089
-      timezone: Europe/Rome
-      units: metric
-      cache: 5
-      format: # optional, Intl.NumberFormat options
-        maximumFractionDigits: 1
+        label: Agugliano
+        latitude: 43.32371
+        longitude: 13.23089
+        timezone: Europe/Rome
+        units: metric
+        cache: 5
+        format: # optional, Intl.NumberFormat options
+          maximumFractionDigits: 1
   docker.yaml: ""
 ---
 apiVersion: rbac.authorization.k8s.io/v1
