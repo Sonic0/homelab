@@ -117,23 +117,23 @@ if [ ! -f "${SSH_KEY}" ]; then
   done
 fi
 
-# pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1; }
+pushd "${ANSIBLE_PLAYBOOKS_DIR}" || { echo "Failed to change directory"; exit 1; }
 
-# Step 1 - Init Proxmox
-#ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
-#  --user "${PROXMOX_INIT_USER}" --key-file "${SSH_KEY}"
+Step 1 - Init Proxmox
+ansible-playbook "init.yml" -i "${ANSIBLE_INVENTORY_FILE}" -t "${TAGS:-all}" \
+ --user "${PROXMOX_INIT_USER}" --key-file "${SSH_KEY}"
 
-# Step 2 - User Token
-#ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
- # --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}" -e "terraform_user_password=${PROXMOX_TERRAFORM_USER_PASSWORD}"
+Step 2 - User Token
+ansible-playbook "pve_api_user.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+ --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}" -e "terraform_user_password=${PROXMOX_TERRAFORM_USER_PASSWORD}"
 
-# Step 3 - VM template
-# ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
-#  --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
+Step 3 - VM template
+ansible-playbook "pve_template_build.yml" -i "${ANSIBLE_INVENTORY_FILE}" \
+ --user "${PROXMOX_INIT_USER}" --private-key="${SSH_KEY}"
 
-# popd || { echo "Failed to return to the previous directory"; exit 1; }
+popd || { echo "Failed to return to the previous directory"; exit 1; }
 
-# sleep 10
+sleep 10
 
 export PROXMOX_NODE=$(ANSIBLE_NMAP_ADDRESS="${NETWORK_CIDR}" \
   ansible-inventory -i "${ANSIBLE_INVENTORY_FILE}" --list --export | jq '.ungrouped.hosts[0]')

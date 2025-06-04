@@ -79,15 +79,15 @@ pihole:
     customDnsEntries:
       - address=/switch.net.home.lan/192.168.20.20
       - address=/sonicwallap.net.home.lan/192.168.20.21
-      - address=/zyxelap.srv.home.lan/192.168.20.22
+      - address=/zyxelap.net.home.lan/192.168.20.22
       - address=/pihole.srv.home.lan/192.168.20.100
       - address=/homepage.srv.home.lan/192.168.20.100
       - address=/argocd.srv.home.lan/192.168.20.100
       - address=/vault.srv.home.lan/192.168.20.100
 
     customCnameEntries:
-      - cname=sonic.ap,sonicwallap.srv.home.lan
-      - cname=zyxel.ap,zyxelap.srv.home.lan
+      - cname=sonic.ap,sonicwallap.net.home.lan
+      - cname=zyxel.ap,zyxelap.net.home.lan
 
   extraEnvVars:
     TZ: "Europe/Rome"
