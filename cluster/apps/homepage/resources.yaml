@@ -200,7 +200,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: gethomepage.dev # required, may need port. See gethomepage.dev/installation/#homepage_allowed_hosts
+              value: homepage.srv.home.lan
           ports:
             - name: http
               containerPort: 3000
@@ -263,7 +263,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: "homepage.srv.home.lan"
+    - host: homepage.srv.home.lan
       http:
         paths:
           - path: "/"
