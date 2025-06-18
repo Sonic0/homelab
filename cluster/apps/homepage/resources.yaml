@@ -31,14 +31,13 @@ data:
   settings.yaml: |
     title: "One Homepage to Rule Them All"
     description: "Dashboard for homelab services"
-    theme: dark
     showStats: true
     background:
       image: https://w.wallhaven.cc/full/1q/wallhaven-1q83qg.jpg
       blur: xl
       saturate: 50
       brightness: 25
-      opacity: 25
+      opacity: 15
   #settings.yaml: |
   #  providers:
   #    longhorn:
