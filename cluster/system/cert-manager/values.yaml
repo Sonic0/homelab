@@ -1,0 +1,10 @@
+cert-manager:
+  installCRDs: true
+  ingressShim:
+    defaultIssuerName: local-root-ca
+    defaultIssuerKind: ClusterIssuer
+    defaultIssuerGroup: cert-manager.io
+  # prometheus:
+  #   enabled: true
+  #   servicemonitor:
+  #     enabled: true

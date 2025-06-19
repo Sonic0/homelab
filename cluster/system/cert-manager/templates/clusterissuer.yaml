@@ -1,0 +1,33 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: local-root-selfsigned # Issuer self-signed
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: local-root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: "Local Homelab CA"
+  secretName: local-root-ca-secret # Secret name were cert and key will be saved
+  duration: 26280h
+  renewBefore: 720h
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: local-root-selfsigned # ClusterIssuer self-signed (step 1)
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: local-root-ca # ClusterIssuer CA to use in Ingresses annotations
+spec:
+  ca:
+    secretName: local-root-ca-secret # The secret with the CA (step 2)
