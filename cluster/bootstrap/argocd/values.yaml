@@ -144,19 +144,23 @@ argo-cd:
     ingress:
       enabled: true
       annotations:
-        # cert-manager.io/cluster-issuer: letsencrypt-prod
-        traefik.ingress.kubernetes.io/router.entrypoints: web
-        traefik.ingress.kubernetes.io/router.tls: "false"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.middlewares: "traefik-https-redirect@kubernetescrd,traefik-auth@kubernetescrd"
+        cert-manager.io/cluster-issuer: "local-root-ca" # The self-signed CA issuer
+        cert-manager.io/common-name: "argocd.srv.home.lan"
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: "ArgoCD server"
         gethomepage.dev/group: CI-CD
         gethomepage.dev/icon: argocd.png
         gethomepage.dev/name: ArgoCD
         gethomepage.dev/widget.type: "argocd"
-        gethomepage.dev/widget.url: "http://argocd.srv.home.lan"
+        gethomepage.dev/widget.url: "https://argocd.srv.home.lan"
         gethomepage.dev/pod-selector: ""
       ingressClassName: traefik
-      tls: false
+      tls:
+        - hosts:
+            - argocd.srv.home.lan
+          secretName: argocd-server-tls-secret
     metrics:
       enabled: true
       serviceMonitor:
