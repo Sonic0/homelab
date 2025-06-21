@@ -48,20 +48,26 @@ pihole:
     enabled: true
     ingressClassName: traefik
     annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: web
-      traefik.ingress.kubernetes.io/router.tls: "false"
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+      cert-manager.io/cluster-issuer: "local-root-ca" # The self-signed CA issuer
+      cert-manager.io/subject-organizations: "Homelab"
+      cert-manager.io/subject-organizationalunits: "Deployment"
       gethomepage.dev/enabled: "true"
       gethomepage.dev/description: "Pi-hole DNS server"
       gethomepage.dev/group: Network
       gethomepage.dev/icon: pihole.png
       gethomepage.dev/name: Pi-hole
       gethomepage.dev/widget.type: "pihole"
-      gethomepage.dev/widget.url: "http://pihole.srv.home.lan/admin"
+      gethomepage.dev/widget.url: "https://pihole.srv.home.lan/admin"
       gethomepage.dev/pod-selector: ""
     path: /
     hosts:
       - pihole.srv.home.lan
-    # tls:
+    tls:
+      - hosts:
+          - pihole.srv.home.lan
+        secretName: pihole-tls
 
   resources:
     limits:

@@ -142,14 +142,18 @@ argo-cd:
                 argocd-vault-plugin generate -
   server:
     ingress:
-      hostname: argocd.srv.home.lan
       enabled: true
       annotations:
+        traefik.ingress.kubernetes.io/router.tls.domains.0.main: argocd.srv.home.lan
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        traefik.ingress.kubernetes.io/router.middlewares: "traefik-redirect-to-https@kubernetescrd"
         traefik.ingress.kubernetes.io/router.tls: "true"
+        # traefik.ingress.kubernetes.io/router.middlewares: "kube-system-traefik-redirect-to-https@kubernetescrd"
+        traefik.ingress.kubernetes.io/router.observability.accesslogs: true
+        # traefik.ingress.kubernetes.io/router.observability.metrics: true
+        # traefik.ingress.kubernetes.io/router.observability.tracing: true
         cert-manager.io/cluster-issuer: "local-root-ca" # The self-signed CA issuer
-        cert-manager.io/common-name: "argocd.srv.home.lan"
+        cert-manager.io/subject-organizations: "Homelab"
+        cert-manager.io/subject-organizationalunits: "Deployment"
         gethomepage.dev/enabled: "true"
         gethomepage.dev/description: "ArgoCD server"
         gethomepage.dev/group: CI-CD
@@ -159,7 +163,7 @@ argo-cd:
         gethomepage.dev/widget.url: "https://argocd.srv.home.lan"
         gethomepage.dev/pod-selector: ""
       ingressClassName: traefik
-      tls: true
+      tls: false
     metrics:
       enabled: true
       serviceMonitor:
