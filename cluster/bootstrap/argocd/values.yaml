@@ -163,7 +163,11 @@ argo-cd:
         gethomepage.dev/widget.url: "https://argocd.srv.home.lan"
         gethomepage.dev/pod-selector: ""
       ingressClassName: traefik
-      tls: false
+      tls: true
+      extraTls:
+        - hosts:
+            - argocd.srv.home.lan
+          secretName: argocd-server-tls
     metrics:
       enabled: true
       serviceMonitor:
