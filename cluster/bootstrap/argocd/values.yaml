@@ -108,6 +108,8 @@ argo-cd:
     rbac:
       policy.csv: |
         g, argocd_admins, role:admin
+    params:
+      server.insecure: true
     cmp:
       create: true
       plugins:

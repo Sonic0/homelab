@@ -247,13 +247,16 @@ metadata:
   labels:
     app.kubernetes.io/name: homepage
   annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: "local-root-ca" # The self-signed CA issuer
+    cert-manager.io/subject-organizations: "Homelab"
+    cert-manager.io/subject-organizationalunits: "Deployment"
     gethomepage.dev/description: Dynamically Detected Homepage
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Cluster Management
     gethomepage.dev/icon: homepage.png
     gethomepage.dev/name: Homepage
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-    traefik.ingress.kubernetes.io/router.tls: "false"
 spec:
   ingressClassName: traefik
   rules:
@@ -267,3 +270,7 @@ spec:
                 name: homepage
                 port:
                   number: 3000
+  tls:
+    - hosts:
+        - homepage.srv.home.lan
+      secretName: homepage-tls
