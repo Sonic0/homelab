@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-redirect
+spec:
+  redirectRegex:
+    regex: /admin/$
+    replacement: /
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-prefix
+spec:
+  addPrefix:
+    prefix: /admin
