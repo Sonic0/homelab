@@ -8,4 +8,4 @@
 #       enabled: true
 ipaddresspool:
   name: server-lan-pool
-  addresses: 192.168.20.100-192.168.20.130
+  addresses: 192.168.20.50-192.168.20.99
