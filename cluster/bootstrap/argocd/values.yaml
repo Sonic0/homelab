@@ -16,7 +16,7 @@ argo-cd:
         emptyDir: {}
     initContainers:
       - name: avp-download
-        image: alpine:3.21
+        image: alpine:3.22
         env:
           - name: AVP_VERSION
             # renovate: depName=
