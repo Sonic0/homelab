@@ -7,12 +7,6 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
   clone       = local.k8s_common.clone_base
   vmid        = each.value.vmid
 
-  cpu_type = "kvm64"
-  sockets  = 1
-  cores    = each.value.cores
-  memory   = each.value.memory
-  # numa    = true
-
   os_type = "cloud-init"
   qemu_os = "l26"
   agent   = 1
@@ -23,6 +17,14 @@ resource "proxmox_vm_qemu" "k8s_controlplane" {
   ipconfig0      = "ip=${each.value.ip}/24,gw=${local.k8s_common.gw}"
   skip_ipv6      = true
   sshkeys        = var.ssh_pub_keys
+
+  memory = each.value.memory
+
+  cpu {
+    cores   = each.value.cores
+    sockets = 1
+    type    = "host"
+  }
 
   ciupgrade = true
   ci_wait   = 180
