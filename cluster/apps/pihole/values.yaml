@@ -50,7 +50,6 @@ pihole:
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
-      traefik.ingress.kubernetes.io/router.middlewares: apps-dashboard-prefix@kubernetescrd
       cert-manager.io/cluster-issuer: "local-root-ca" # The self-signed CA issuer
       cert-manager.io/subject-organizations: "Homelab"
       cert-manager.io/subject-organizationalunits: "Deployment"
