@@ -8,7 +8,7 @@
   when: "'ceph_base' not in ansible_facts.packages"
   register: install_ceph
   changed_when:
-    - '"installed ceph reef successfully!" in install_ceph.stdout'
+    - '"installed ceph {{ ceph_version }} successfully!" in install_ceph.stdout'
     - '"ceph is already the newest version" not in install_ceph.stdout'
 
 - name: Get the network address of the primary IP
@@ -22,7 +22,7 @@
 - name: Init Ceph and Ceph Monitor
   ansible.builtin.command: pveceph init --network "{{ net_ip_mask | ansible.utils.ipaddr('net')}}" --min_size "{{ ceph_nodes }}"
   register: init_ceph
-  changed_when: '"installed ceph reef successfully!" in init_ceph.stdout'
+  changed_when: '"installed ceph {{ ceph_version }} successfully!" in init_ceph.stdout'
 
 - name: Create Ceph Manager
   ansible.builtin.command: pveceph mgr create

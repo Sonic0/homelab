@@ -1,5 +1,4 @@
 ---
-
 pve_api_user_name: terraform-prov
 pve_api_user: "{{ pve_api_user_name }}@pve"
 pve_api_user_comment: hashicorp provider
@@ -29,7 +28,6 @@ pve_api_role_privs: >
   VM.Config.Options
   VM.Console
   VM.Migrate
-  VM.Monitor
   VM.PowerMgmt
   SDN.Use
 
