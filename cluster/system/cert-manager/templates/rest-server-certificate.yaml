@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rest-server-tls
+  namespace: cert-manager
+spec:
+  secretName: rest-server-tls
+  duration: 2160h
+  renewBefore: 360h
+  ipAddresses:
+    - "192.168.20.100"
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  privateKey:
+    algorithm: RSA
+    size: 3072
+    rotationPolicy: Always
+  issuerRef:
+    name: local-root-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
