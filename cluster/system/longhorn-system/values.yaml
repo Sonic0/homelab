@@ -28,5 +28,7 @@ longhorn:
 
 uiLoadBalancer:
   addressPool: server-lan-pool
+  address: "192.168.20.52"
   sourceRanges:
     - 192.168.20.0/24
+    - 192.168.10.0/24

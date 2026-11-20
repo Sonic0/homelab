@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     metallb.io/address-pool: {{ .Values.uiLoadBalancer.addressPool | quote }}
+    metallb.io/loadBalancerIPs: {{ .Values.uiLoadBalancer.address | quote }}
 spec:
   type: LoadBalancer
   allocateLoadBalancerNodePorts: false
