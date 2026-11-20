@@ -1,0 +1,9 @@
+apiVersion: v2
+name: longhorn-system
+version: 0.1.0
+description: Replicated block storage for the homelab
+
+dependencies:
+  - name: longhorn
+    version: 1.12.2
+    repository: https://charts.longhorn.io

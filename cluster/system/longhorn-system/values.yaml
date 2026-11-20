@@ -1,0 +1,32 @@
+longhorn:
+  global:
+    nodeSelector:
+      node.longhorn.io/create-default-disk: "true"
+
+  defaultSettings:
+    createDefaultDiskLabeledNodes: true
+    defaultReplicaCount: 2
+    systemManagedComponentsNodeSelector: "node.longhorn.io/create-default-disk:true"
+    allowVolumeCreationWithDegradedAvailability: false
+    v1DataEngine: true
+    v2DataEngine: false
+    # Release Longhorn volumes held by terminating pods on a failed node.
+    nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+
+  persistence:
+    # The wrapper owns the default StorageClass, including replica placement.
+    createStorageClass: false
+
+  preUpgradeChecker:
+    # Argo CD manages chart upgrades; run the Longhorn upgrade checks separately.
+    jobEnabled: false
+
+  longhornUI:
+    replicas: 1
+  ingress:
+    enabled: false
+
+uiLoadBalancer:
+  addressPool: server-lan-pool
+  sourceRanges:
+    - 192.168.20.0/24
