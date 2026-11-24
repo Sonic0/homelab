@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-native
+  namespace: {{ .Release.Namespace }}
+spec:
+  secretName: vault-native-tls
+  issuerRef:
+    name: local-root-ca
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    - {{ printf "%s.%s.svc.cluster.local" .Release.Name .Release.Namespace | quote }}
+    - {{ .Values.lan.hostname | quote }}
+  ipAddresses:
+    - {{ .Values.lan.address | quote }}
+  privateKey:
+    rotationPolicy: Always

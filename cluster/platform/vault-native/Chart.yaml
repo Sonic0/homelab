@@ -1,0 +1,9 @@
+apiVersion: v2
+name: vault-native
+version: 0.1.0
+description: Independent Vault Community server for the homelab
+
+dependencies:
+  - name: vault
+    version: 0.34.1
+    repository: https://helm.releases.hashicorp.com

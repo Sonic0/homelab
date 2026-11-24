@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-native-lan
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    metallb.io/address-pool: {{ .Values.lan.addressPool | quote }}
+    metallb.io/loadBalancerIPs: {{ .Values.lan.address | quote }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.lan.hostname | quote }}
+spec:
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Local
+  loadBalancerSourceRanges:
+    {{- toYaml .Values.lan.sourceRanges | nindent 4 }}
+  selector:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    component: server
+  ports:
+    - name: https
+      port: 443
+      targetPort: https

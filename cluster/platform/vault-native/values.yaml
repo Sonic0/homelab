@@ -1,0 +1,93 @@
+lan:
+  addressPool: server-lan-pool
+  address: "192.168.20.53"
+  hostname: vault.srv.home.lan
+  sourceRanges:
+    - 192.168.10.0/24
+    - 192.168.20.0/24
+
+vault:
+  global:
+    tlsDisable: false
+
+  injector:
+    enabled: false
+  csi:
+    enabled: false
+  ui:
+    # The chart's UI Service cannot disable LoadBalancer NodePort allocation.
+    # Use vault-native-lan instead to serve /ui/ through MetalLB without an API NodePort.
+    enabled: false
+
+  server:
+    image:
+      repository: hashicorp/vault
+      # Follow the latest patch in the 2.2 image series; this tag is mutable.
+      tag: "2.2"
+      pullPolicy: IfNotPresent
+    logFormat: json
+    updateStrategyType: OnDelete
+    readinessProbe:
+      # Keep sealed and uninitialized servers out of the LAN Service.
+      path: /v1/sys/health
+    volumes:
+      - name: vault-tls
+        secret:
+          secretName: vault-native-tls
+    volumeMounts:
+      - name: vault-tls
+        mountPath: /vault/userconfig/tls
+        readOnly: true
+    nodeSelector:
+      node.longhorn.io/create-default-disk: "true"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+    serviceAccount:
+      create: true
+      name: vault-native
+    statefulSet:
+      annotations:
+        argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    dataStorage:
+      enabled: true
+      size: 5Gi
+      storageClass: longhorn-retain
+      annotations:
+        argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    dev:
+      enabled: false
+    standalone:
+      enabled: false
+    ha:
+      enabled: true
+      # One server is NOT highly available; manual unseal is required after restart.
+      replicas: 1
+      apiAddr: https://vault-native.vault-native.svc.cluster.local:8200
+      disruptionBudget:
+        enabled: false
+      raft:
+        enabled: true
+        setNodeId: true
+        config: |
+          ui = true
+
+          listener "tcp" {
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            tls_cert_file = "/vault/userconfig/tls/tls.crt"
+            tls_key_file = "/vault/userconfig/tls/tls.key"
+            tls_reload_interval = "1m"
+          }
+
+          storage "raft" {
+            path = "/vault/data"
+          }
+
+          service_registration "kubernetes" {}
