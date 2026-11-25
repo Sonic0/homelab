@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-dns
+  namespace: external-secrets
+# ESO requests a short-lived token for this identity; no pod needs to mount it.
+automountServiceAccountToken: false
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: vault-dns
+spec:
+  # Keep DNS consumers separate from the Argo CD notifications policy.
+  conditions:
+    - namespaces:
+        - apps
+        - external-dns
+  provider:
+    vault:
+      server: https://vault-native.vault-native.svc.cluster.local:8200
+      path: secret
+      version: v2
+      caProvider:
+        type: ConfigMap
+        name: vault-ca
+        namespace: external-secrets
+        key: ca.crt
+      auth:
+        kubernetes:
+          mountPath: kubernetes
+          role: eso-dns
+          serviceAccountRef:
+            name: vault-dns
+            namespace: external-secrets
+            audiences:
+              - vault
